@@ -35,7 +35,7 @@ Computer Security Project/
 ├── iot_botnet_detection.ipynb  # Deliverable B — analysis notebook (run on Google Colab)
 ├── README.md                   # this file
 ├── requirements.txt            # Python dependencies
-├── data/                       # N-BaIoT CSVs (not committed — see below)
+├── data/                       # N-BaIoT CSVs (not in git — download from Releases)
 ├── report/
 │   └── report.tex              # Deliverable C — final report (LaTeX, for Overleaf)
 └── presentation/
@@ -51,10 +51,20 @@ ready-to-paste LaTeX tables from every evaluation section.
 
 ### Step 0 — Get the dataset (once)
 
-**Option A — Kaggle** (free account required):
+**Option A — this repository's release** (no login, fastest):
+<https://github.com/manganjokean/computer-security-project/releases/tag/nbaiot-data>
+Nine `.tar.gz` archives — one per device — plus the dataset's own
+description file: **1.77 GB compressed** (7.58 GB extracted). Extract all
+nine next to the notebook; each unpacks straight into its device folder:
+
+```bash
+tar -xzf Danmini_Doorbell.tar.gz     # macOS / Linux / Windows 10+ (tar is built in)
+```
+
+**Option B — Kaggle** (free account required):
 <https://www.kaggle.com/datasets/mkashifn/nbaiot-dataset> → **Download**
 
-**Option B — UCI mirror** (no login, identical data):
+**Option C — UCI mirror** (no login, identical data):
 ```
 https://archive.ics.uci.edu/static/public/442/detection+of+iot+botnet+attacks+n+baiot.zip
 ```
