@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Presentation outline — IoT Botnet Detection</title>
+<style>
+  :root { --ink:#16202c; --muted:#5b6b7c; --line:#e3e9f0; --accent:#0b6bcb; --bg:#fff; --soft:#f6f9fc; }
+  * { box-sizing:border-box; }
+  body { margin:0; color:var(--ink); background:var(--bg);
+         font:17px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .hero { background:linear-gradient(135deg,#0b2545 0%,#134074 55%,#1d5c9e 100%); color:#fff; padding:44px 0 0; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 22px; }
+  .eyebrow { margin:0; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:#9fc4ef; }
+  h1 { margin:.25em 0 .1em; font-size:clamp(28px,4.4vw,42px); line-height:1.15; }
+  .sub { margin:0 0 26px; color:#d6e6f8; font-size:18px; }
+  .tabs { display:flex; flex-wrap:wrap; gap:4px; margin:0; }
+  .tabs a { color:#cfe1f7; text-decoration:none; padding:11px 15px; font-size:15px;
+             border-bottom:3px solid transparent; }
+  .tabs a:hover { color:#fff; background:rgba(255,255,255,.08); }
+  .tabs a.active { color:#fff; border-bottom-color:#7fb6f0; font-weight:600; }
+  main { padding:34px 0 60px; }
+  h2 { margin-top:1.7em; padding-bottom:.25em; border-bottom:2px solid var(--line); font-size:26px; }
+  h3 { margin-top:1.5em; font-size:20px; }
+  a { color:var(--accent); }
+  code { background:var(--soft); border:1px solid var(--line); border-radius:4px;
+          padding:.1em .35em; font-size:.9em; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:8px; padding:14px 16px;
+         overflow-x:auto; }
+  pre code { background:none; border:0; padding:0; }
+  table { border-collapse:collapse; width:100%; margin:1.1em 0; font-size:15.5px; display:block;
+           overflow-x:auto; }
+  th,td { border:1px solid var(--line); padding:8px 11px; text-align:left; }
+  th { background:var(--soft); }
+  tr:nth-child(even) td { background:#fbfdff; }
+  blockquote { margin:1em 0; padding:.15em 1.1em; border-left:4px solid #b9d4f2; color:var(--muted);
+                background:var(--soft); }
+  hr { border:0; border-top:1px solid var(--line); margin:2.2em 0; }
+  footer { border-top:1px solid var(--line); padding:22px 0 40px; color:var(--muted); font-size:14px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; margin:1.2em 0 1.6em; }
+  .card { display:block; border:1px solid var(--line); border-radius:10px; padding:15px 16px;
+           text-decoration:none; color:var(--ink); background:#fff; }
+  .card:hover { border-color:#9ec6ee; box-shadow:0 4px 14px rgba(11,107,203,.10); }
+  .card b { color:var(--accent); display:block; margin-bottom:3px; }
+  .card span { color:var(--muted); font-size:14.5px; line-height:1.45; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Computer Security Project</p>
+    <h1>Can Abnormal IoT Traffic Be Detected?</h1>
+    <p class="sub">Behavioral detection of botnet-infected IoT devices using machine learning &middot; N-BaIoT dataset</p>
+    
+<nav class="tabs">
+  <a href="index.html">Overview</a>
+  <a href="notebook.html">Notebook &amp; results</a>
+  <a href="presentation.html" class="active">Presentation</a>
+  <a href="https://github.com/manganjokean/computer-security-project/blob/main/report/report.tex">Report (LaTeX)</a>
+  <a href="https://github.com/manganjokean/computer-security-project/releases/tag/nbaiot-data">Dataset</a>
+  <a href="https://github.com/manganjokean/computer-security-project">GitHub</a>
+</nav>
+  </div>
+</header>
+<main class="wrap">
+<p><strong>Talk length:</strong> 10–15 minutes (≈12 min of content + Q&amp;A)
+<strong>Slides recommended:</strong> 10–12
+<strong>Deck to build in:</strong> PowerPoint, Google Slides, or LaTeX Beamer</p>
+<blockquote>
+<p><strong>Rubric requirement:</strong> the presentation must cover Problem · Dataset ·
+Methodology · Results · Security implications · Conclusion.</p>
+</blockquote>
+<hr />
+<h2>Timing plan</h2>
+<table>
+<thead>
+<tr>
+  <th>#</th>
+  <th>Slide</th>
+  <th>Section</th>
+  <th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>1</td>
+  <td>Title</td>
+  <td>—</td>
+  <td>0:30</td>
+</tr>
+<tr>
+  <td>2–3</td>
+  <td>The problem</td>
+  <td><strong>Problem</strong></td>
+  <td>2:00</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>The dataset</td>
+  <td><strong>Dataset</strong></td>
+  <td>1:30</td>
+</tr>
+<tr>
+  <td>5–7</td>
+  <td>How we built it</td>
+  <td><strong>Methodology</strong></td>
+  <td>3:00</td>
+</tr>
+<tr>
+  <td>8–9</td>
+  <td>What we found</td>
+  <td><strong>Results</strong></td>
+  <td>3:00</td>
+</tr>
+<tr>
+  <td>10–11</td>
+  <td>What it means</td>
+  <td><strong>Security implications</strong></td>
+  <td>2:30</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td>Closing</td>
+  <td><strong>Conclusion</strong></td>
+  <td>1:00</td>
+</tr>
+<tr>
+  <td></td>
+  <td><strong>Total</strong></td>
+  <td></td>
+  <td><strong>≈13:30</strong> + Q&amp;A</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Slide 1 — Title (0:30)</h2>
+<p><strong>Can Abnormal IoT Traffic Be Detected?</strong>
+<em>Behavioral Detection of Botnet-Infected IoT Devices</em></p>
+<ul>
+<li>Your name, course, instructor, date</li>
+<li>Dataset credit line: <em>N-BaIoT, Kaggle (Kashif, 2020)</em></li>
+</ul>
+<blockquote>
+<p>Speaker note: &quot;I'll answer one question: can we tell from network traffic
+alone that an IoT device has been compromised — and can we do it without
+ever touching the device itself?&quot;</p>
+</blockquote>
+<hr />
+<h2>SECTION: PROBLEM</h2>
+<h3>Slide 2 — Why IoT security is different (1:00)</h3>
+<p>Three constraints that rule out normal defenses:</p>
+<ol>
+<li><strong>No endpoint agent possible</strong> — not enough storage, memory, or power</li>
+<li><strong>Rarely patched</strong> — vendors abandon devices; users never update</li>
+<li><strong>Physically exposed</strong> — same Wi-Fi as laptops; default credentials</li>
+</ol>
+<p><strong>Result:</strong> the only control that scales is <em>network-side monitoring</em>.</p>
+<blockquote>
+<p>Visual: photo/collage of a doorbell camera, thermostat, baby monitor with
+&quot;cannot install antivirus&quot; crossed out.</p>
+</blockquote>
+<h3>Slide 3 — The threat + research question (1:00)</h3>
+<ul>
+<li><strong>Mirai / BASHLITE lifecycle:</strong> propagate → infect → C&amp;C → <strong>execute attacks</strong></li>
+<li>Mirai powered some of the largest DDoS attacks on record</li>
+<li>We target the <strong>execution stage</strong> — the stage that causes external harm</li>
+</ul>
+<blockquote>
+<p><strong>Research question:</strong>
+<em>Can behavioral network-traffic features accurately distinguish benign IoT
+traffic from botnet-infected IoT traffic?</em></p>
+</blockquote>
+<hr />
+<h2>SECTION: DATASET</h2>
+<h3>Slide 4 — N-BaIoT (1:30)</h3>
+<table>
+<thead>
+<tr>
+  <th></th>
+  <th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><strong>Source</strong></td>
+  <td>Kaggle — <code>kaggle.com/datasets/mkashifn/nbaiot-dataset</code></td>
+</tr>
+<tr>
+  <td><strong>Size</strong></td>
+  <td><strong>7,062,606 records</strong> → <strong>150,304 sampled</strong> (stratified, proportional)</td>
+</tr>
+<tr>
+  <td><strong>Devices</strong></td>
+  <td>9 commercial devices: doorbells, thermostat, baby monitor, cameras, webcam</td>
+</tr>
+<tr>
+  <td><strong>Capture</strong></td>
+  <td>Real traffic before <strong>and after</strong> authentic infection with Mirai + BASHLITE</td>
+</tr>
+<tr>
+  <td><strong>Features</strong></td>
+  <td>115 behavioral statistics — 23 stats × 5 time windows (100ms → 1min)</td>
+</tr>
+<tr>
+  <td><strong>Target</strong></td>
+  <td><code>0 = benign</code> · <code>1 = malicious</code></td>
+</tr>
+<tr>
+  <td><strong>Mix</strong></td>
+  <td><strong>8.1% benign / 91.9% malicious — 11.4 : 1</strong> (inverse of production)</td>
+</tr>
+<tr>
+  <td><strong>Attacks</strong></td>
+  <td>10 types: Mirai (ACK/Scan/SYN/UDP/UDP-plain) + Gafgyt (Combo/Junk/Scan/TCP/UDP)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Say out loud:</strong> &quot;Not simulated, not emulated — nine real devices were
+actually infected in a lab. And note the class mix: 92% attack traffic.
+That inversion is the biggest caveat in this whole project — I'll come back
+to it.&quot;</p>
+</blockquote>
+<blockquote>
+<p>Visual: class-distribution bar chart + per-device stacked bar.</p>
+</blockquote>
+<hr />
+<h2>SECTION: METHODOLOGY</h2>
+<h3>Slide 5 — Preprocessing (1:00)</h3>
+<p>Flow diagram left → right:</p>
+<p><strong>Load → Deduplicate (−96 rows) → Stratified split (<code>device × label</code>, 120,166 / 30,042) → Variance/correlation pruning (115 → 36) → Median impute (0 missing) → One-hot encode → Standardize → Class weighting</strong></p>
+<p>Three &quot;why&quot; callouts (pick the ones you're asked about most):</p>
+<ul>
+<li><strong>Dedupe before split</strong> — flood generators emit identical rows (96 found, 0.06%); otherwise they leak into the test set</li>
+<li><strong>Correlation pruning</strong> — 334 feature pairs had |r| &gt; 0.95; kept 36 of 115 to avoid redundant collinear inputs</li>
+<li><strong>Class weighting</strong> — 92% of training rows are malicious; accuracy would reward guessing the majority class</li>
+</ul>
+<h3>Slide 6 — Four methods, two assumptions (1:00)</h3>
+<table>
+<thead>
+<tr>
+  <th>Model</th>
+  <th>Type</th>
+  <th>Why it's here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Logistic Regression</td>
+  <td>Supervised, linear</td>
+  <td>Interpretable baseline</td>
+</tr>
+<tr>
+  <td>Random Forest</td>
+  <td>Supervised, ensemble</td>
+  <td>Non-linear interactions + importance</td>
+</tr>
+<tr>
+  <td>XGBoost</td>
+  <td>Supervised, boosting</td>
+  <td>Best tabular performance + SHAP</td>
+</tr>
+<tr>
+  <td><strong>Isolation Forest</strong></td>
+  <td><strong>Unsupervised anomaly detection</strong></td>
+  <td><strong>Trained on benign only — never sees an attack</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Key line:</strong> &quot;Isolation Forest is the only model that behaves like a real
+IDS — it can't enumerate attacks it's never seen, so it learns what <em>normal</em>
+looks like.&quot;</p>
+</blockquote>
+<h3>Slide 7 — Evaluation design (1:00)</h3>
+<p>Metrics: Accuracy · Precision · Recall · F1 · ROC-AUC · Confusion Matrix · <strong>FPR</strong> · <strong>FNR</strong></p>
+<blockquote>
+<p><strong>Framing sentence:</strong> <em>&quot;For security, accuracy is not the objective.
+A false negative leaves a device attacking from inside your network.
+A false positive can take a safety-critical camera offline.&quot;</em></p>
+</blockquote>
+<hr />
+<h2>SECTION: RESULTS</h2>
+<h3>Slide 8 — Headline metrics (1:30)</h3>
+<table>
+<thead>
+<tr>
+  <th>Model</th>
+  <th>Acc</th>
+  <th>Prec</th>
+  <th>Recall</th>
+  <th>F1</th>
+  <th>AUC</th>
+  <th><strong>FPR</strong></th>
+  <th><strong>FNR</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Logistic Regression</td>
+  <td>0.9992</td>
+  <td>0.9996</td>
+  <td>0.9996</td>
+  <td>0.9996</td>
+  <td>0.9989</td>
+  <td>0.0046</td>
+  <td>0.0004</td>
+</tr>
+<tr>
+  <td>Random Forest</td>
+  <td>0.9999</td>
+  <td>1.0000</td>
+  <td>0.9999</td>
+  <td>1.0000</td>
+  <td>1.0000</td>
+  <td>0.0000</td>
+  <td>0.0001</td>
+</tr>
+<tr>
+  <td><strong>XGBoost</strong></td>
+  <td><strong>1.0000</strong></td>
+  <td><strong>1.0000</strong></td>
+  <td><strong>1.0000</strong></td>
+  <td><strong>1.0000</strong></td>
+  <td><strong>1.0000</strong></td>
+  <td><strong>0.0000</strong></td>
+  <td><strong>0.0000</strong></td>
+</tr>
+<tr>
+  <td>Isolation Forest</td>
+  <td>0.2978</td>
+  <td>0.9706</td>
+  <td>0.2438</td>
+  <td>0.3897</td>
+  <td>0.8835</td>
+  <td>0.0844</td>
+  <td>0.7562</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Overlay the <strong>ROC curve figure</strong> with AUC values</li>
+<li>Best model: <strong>XGBoost</strong> (F1 1.0000); Random Forest ties on AUC</li>
+</ul>
+<blockquote>
+<p><strong>Accuracy = 1.0000 · F1 = 1.0000 · ROC-AUC = 1.0000</strong> <em>(XGBoost)</em></p>
+<p>⚠️ <strong>Immediately under-cut it yourself:</strong> <em>&quot;Zero false positives on only
+2,416 benign test flows. By the rule of three, the 95% upper bound is
+0.124% — up to 1,242 false alerts/day. I can't certify a zero FPR from
+this test set, and neither can anyone else with 2,416 samples.&quot;</em></p>
+</blockquote>
+<h3>Slide 9 — Where it succeeds and where it fails (1:30)</h3>
+<ul>
+<li><strong>Confusion matrix</strong> figure (best model)</li>
+<li><strong>Detection rate by attack type</strong> table</li>
+</ul>
+<table>
+<thead>
+<tr>
+  <th>Attack</th>
+  <th>RF</th>
+  <th>XGBoost</th>
+  <th>Isolation Forest</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>mirai_udpplain / udp / ack</td>
+  <td>1.0000</td>
+  <td>1.0000</td>
+  <td>0.65</td>
+</tr>
+<tr>
+  <td>gafgyt_junk</td>
+  <td>1.0000</td>
+  <td>1.0000</td>
+  <td><strong>0.0274</strong></td>
+</tr>
+<tr>
+  <td>gafgyt_scan</td>
+  <td>1.0000</td>
+  <td>1.0000</td>
+  <td><strong>0.0226</strong></td>
+</tr>
+<tr>
+  <td>gafgyt_combo</td>
+  <td>1.0000</td>
+  <td>1.0000</td>
+  <td><strong>0.0024</strong></td>
+</tr>
+<tr>
+  <td>gafgyt_tcp · mirai_scan · mirai_syn</td>
+  <td>0.9997–1.0000</td>
+  <td>1.0000</td>
+  <td><strong>0.0000</strong></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Per-device F1:</strong> XGBoost 1.0000 on 8/9 devices (0.9999 on Ecobee); Isolation Forest <strong>0.0015 on Ennio Doorbell and Samsung webcam</strong> — worse than random</li>
+</ul>
+<blockquote>
+<p><strong>The sentence that earns marks:</strong> &quot;Supervised models caught 9 of 10 attack
+types at 1.0000. <strong>The anomaly detector scored 0.0000 on scanning</strong> — and
+scanning is the propagation phase, so a miss means the botnet keeps growing.
+Overall it missed three out of every four attacks.&quot;</p>
+</blockquote>
+<hr />
+<h2>SECTION: SECURITY IMPLICATIONS</h2>
+<h3>Slide 10 — False positives vs false negatives (1:15)</h3>
+<p>Two-column slide:</p>
+<table>
+<thead>
+<tr>
+  <th><strong>False positive</strong> — measured</th>
+  <th><strong>False negative</strong> — measured</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Logistic Regression: 11 FP on 2,416 benign → <strong>4,553 false alerts/day</strong></td>
+  <td>Isolation Forest: <strong>20,890 missed attacks</strong> → ~<strong>7,562 missed/day</strong></td>
+</tr>
+<tr>
+  <td>Isolation Forest: 204 FP → <strong>84,437 false alerts/day</strong></td>
+  <td>Logistic Regression: 12 · Random Forest: 2 · XGBoost: 0</td>
+</tr>
+<tr>
+  <td>RF / XGBoost: 0 FP — but only bounded to ≲0.124% (2,416 samples)</td>
+  <td>Missed device keeps <strong>scanning → botnet grows</strong></td>
+</tr>
+<tr>
+  <td>Auto-quarantine takes a <strong>baby monitor offline</strong> = safety &amp; privacy outage</td>
+  <td>Device keeps DDoS-ing third parties → legal/reputational exposure</td>
+</tr>
+<tr>
+  <td></td>
+  <td>Inside foothold for lateral movement + exfiltration</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Bottom line:</strong> <em>&quot;Missed detection is far more damaging than a false
+alarm — which is why we report FNR, not accuracy, as the headline. And note
+the asymmetry: the cheapest failure for an operator is 4,553 false alerts a
+day; the expensive one is a device quietly inside your network.&quot;</em></p>
+</blockquote>
+<h3>Slide 11 — Feature importance + deployment (1:15)</h3>
+<p><strong>Top features (XGBoost gain) — top two = 87% of total:</strong></p>
+<table>
+<thead>
+<tr>
+  <th>Feature</th>
+  <th>Importance</th>
+  <th>Means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>HpHp_L0.01_radius</code></td>
+  <td><strong>0.6898</strong></td>
+  <td>burstiness on one socket, last 10 ms</td>
+</tr>
+<tr>
+  <td><code>HH_L0.01_pcc</code></td>
+  <td><strong>0.1829</strong></td>
+  <td>correlation of source/dest rates, last 10 ms</td>
+</tr>
+<tr>
+  <td><code>HH_jit_L5_mean</code></td>
+  <td>0.0442</td>
+  <td>channel jitter, last 5 s</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>SHAP confirms:</strong> <code>HH_jit_L5_mean</code> contributed <strong>+6.75</strong> to the example malicious flow (all others ≤ +0.54); <code>MI_dir_L0.01_weight</code> contributed <strong>−5.05</strong> to the benign one</li>
+<li>Interpret physically: an infected device moves <strong>254× more packets in 0.1 s</strong> (14.5 → 3,689.6). Compromise is a <strong>sustained behavioural shift</strong>, not one bad packet</li>
+<li><strong>Deployment:</strong> edge gateway / access point · pooled <strong>supervised</strong> model works fleet-wide, <strong>anomaly</strong> model must be per-device · tiered thresholds (auto-quarantine vs. analyst) · periodic re-baselining</li>
+</ul>
+<hr />
+<h2>SECTION: CONCLUSION</h2>
+<h3>Slide 12 — Closing (1:00)</h3>
+<p><strong>Answer:</strong> <em>Can abnormal IoT traffic be detected?</em> → <strong>Yes — with caveats.</strong>
+<em>XGBoost F1 = 1.0000 · ROC-AUC = 1.0000, and it holds across all nine devices
+(F1 = 1.0000 on eight, 0.9999 on the Ecobee thermostat).</em></p>
+<p>Four takeaways:</p>
+<ol>
+<li><strong>Network-side detection works for devices that can't protect themselves</strong> — no agent, no patch, no vendor cooperation</li>
+<li><strong>Floods easy, scanning hard — and it's the anomaly detector that fails it</strong> (0.0000 on <code>mirai_scan</code>/<code>mirai_syn</code>)</li>
+<li>Signal is <strong>volume + socket burstiness at the 10 ms window</strong>, not malware content (14.5 → 3,689.6 packets/0.1 s)</li>
+<li><strong>Accuracy is the wrong metric for security</strong> — FPR and FNR are what operators feel</li>
+</ol>
+<p><strong>Limitations (say at least two):</strong> lab vs. production traffic · <strong>inverted class prior (92% malicious)</strong> · <strong>only 2,416 benign test flows → true FPR only bounded to ≲0.124%</strong> · random rather than chronological split · no adversarial testing · two botnet families only.</p>
+<hr />
+<h2>Likely Q&amp;A — and how to answer</h2>
+<p><strong>Q: Your accuracy is ~99%. Isn't this a solved problem?</strong></p>
+<blockquote>
+<p>&quot;On this benchmark, yes. But that's exactly why the rubric says accuracy
+isn't the goal. Three caveats: the corpus is <strong>92% attack traffic</strong> — 11.4
+malicious records per benign one — which is the inverse of production, so
+precision will collapse under a realistic prior; we split randomly rather
+than chronologically, so near-identical consecutive flow snapshots may
+straddle the split; and with only 2,416 benign test flows, a measured zero
+false-positive rate only bounds the true rate to about 0.124%. All three
+inflate the number.&quot;</p>
+</blockquote>
+<p><strong>Q: The Isolation Forest only got F1 = 0.39. Does that mean anomaly detection is useless?</strong></p>
+<blockquote>
+<p>&quot;No — it means <em>this configuration</em> of it is. One pooled model, default
+contamination, no per-device baseline, no threshold tuning, no voting
+window. The original N-BaIoT paper reached 100% TPR with one deep
+autoencoder <strong>per device</strong> and thresholds optimised on held-out benign
+traffic. The gap is the security lesson: anomaly detection is extremely
+sensitive to per-device baselining, and a naively configured detector can be
+worse than useless. That's also why our per-device results show it collapsing
+to 0.0015 F1 on two devices while a pooled supervised model stays at 1.0000.&quot;</p>
+</blockquote>
+<p><strong>Q: Why four models instead of two?</strong></p>
+<blockquote>
+<p>&quot;The rubric requires two. I used four because Isolation Forest answers a
+fundamentally different question — it's trained on benign data only and never
+sees an attack, which is the only realistic setting when a new botnet appears.
+Comparing it to supervised models quantifies what's lost without labels.&quot;</p>
+</blockquote>
+<p><strong>Q: Wouldn't this be defeated by an attacker who knows your features?</strong></p>
+<blockquote>
+<p>&quot;Possibly — that's limitation #4. An attacker who rate-limits and pads jitter
+could blend in. We did no adversarial testing, and that's the honest
+limitation. It's also a strong argument for periodic re-baselining.&quot;</p>
+</blockquote>
+<p><strong>Q: Why not just put an agent on the device?</strong></p>
+<blockquote>
+<p>&quot;That's the central constraint of IoT security: no storage, no compute
+budget, no vendor patches. Network-side monitoring is the only approach that
+scales and requires zero cooperation from the device.&quot;</p>
+</blockquote>
+<p><strong>Q: Is 150k rows enough?</strong></p>
+<blockquote>
+<p>&quot;It's a proportional stratified sample of the full <strong>7,062,606-row</strong> corpus,
+chosen so the notebook runs in minutes on a free Colab instance. Sampling is
+proportional across every device and all ten traffic types, and all seeds are
+fixed for reproducibility. What is <em>not</em> big enough is the benign class — 2,416
+benign test flows is the real statistical weakness, not the total row count.&quot;</p>
+</blockquote>
+<p><strong>Q: What would you do differently?</strong></p>
+<blockquote>
+<p>&quot;Chronological splitting to remove leakage, an adversarial robustness
+evaluation, and a streaming harness to measure detection latency — the
+original paper reports ~174ms, which is the number a real IDS needs.&quot;</p>
+</blockquote>
+<hr />
+<h2>Presentation checklist</h2>
+<ul>
+<li>[ ] All six required sections present (Problem, Dataset, Methodology, Results, Security implications, Conclusion)</li>
+<li>[ ] Total runtime 10–15 min — <strong>rehearse with a timer</strong></li>
+<li>[ ] Dataset cited on the dataset slide (academic integrity)</li>
+<li>[ ] FPR <strong>and</strong> FNR stated explicitly, not just accuracy</li>
+<li>[ ] At least one chart (confusion matrix / ROC / SHAP)</li>
+<li>[ ] Limitations spoken aloud, not just on a slide</li>
+<li>[ ] All <code>[fill]</code> numbers replaced with real results</li>
+</ul>
+
+</main>
+<footer><div class="wrap">
+  Dataset: Kashif, M. (2020). <i>N-BaIoT Dataset to Detect IoT Botnet Attacks</i>, Kaggle &middot;
+  Meidan et al. (2018), arXiv:1805.03409 &middot;
+  Built from this repository&rsquo;s <a href="https://github.com/manganjokean/computer-security-project">README</a>.
+</div></footer>
+</body>
+</html>

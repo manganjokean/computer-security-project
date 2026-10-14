@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IoT Botnet Detection — Computer Security Project</title>
+<style>
+  :root { --ink:#16202c; --muted:#5b6b7c; --line:#e3e9f0; --accent:#0b6bcb; --bg:#fff; --soft:#f6f9fc; }
+  * { box-sizing:border-box; }
+  body { margin:0; color:var(--ink); background:var(--bg);
+         font:17px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .hero { background:linear-gradient(135deg,#0b2545 0%,#134074 55%,#1d5c9e 100%); color:#fff; padding:44px 0 0; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 22px; }
+  .eyebrow { margin:0; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:#9fc4ef; }
+  h1 { margin:.25em 0 .1em; font-size:clamp(28px,4.4vw,42px); line-height:1.15; }
+  .sub { margin:0 0 26px; color:#d6e6f8; font-size:18px; }
+  .tabs { display:flex; flex-wrap:wrap; gap:4px; margin:0; }
+  .tabs a { color:#cfe1f7; text-decoration:none; padding:11px 15px; font-size:15px;
+             border-bottom:3px solid transparent; }
+  .tabs a:hover { color:#fff; background:rgba(255,255,255,.08); }
+  .tabs a.active { color:#fff; border-bottom-color:#7fb6f0; font-weight:600; }
+  main { padding:34px 0 60px; }
+  h2 { margin-top:1.7em; padding-bottom:.25em; border-bottom:2px solid var(--line); font-size:26px; }
+  h3 { margin-top:1.5em; font-size:20px; }
+  a { color:var(--accent); }
+  code { background:var(--soft); border:1px solid var(--line); border-radius:4px;
+          padding:.1em .35em; font-size:.9em; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:8px; padding:14px 16px;
+         overflow-x:auto; }
+  pre code { background:none; border:0; padding:0; }
+  table { border-collapse:collapse; width:100%; margin:1.1em 0; font-size:15.5px; display:block;
+           overflow-x:auto; }
+  th,td { border:1px solid var(--line); padding:8px 11px; text-align:left; }
+  th { background:var(--soft); }
+  tr:nth-child(even) td { background:#fbfdff; }
+  blockquote { margin:1em 0; padding:.15em 1.1em; border-left:4px solid #b9d4f2; color:var(--muted);
+                background:var(--soft); }
+  hr { border:0; border-top:1px solid var(--line); margin:2.2em 0; }
+  footer { border-top:1px solid var(--line); padding:22px 0 40px; color:var(--muted); font-size:14px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; margin:1.2em 0 1.6em; }
+  .card { display:block; border:1px solid var(--line); border-radius:10px; padding:15px 16px;
+           text-decoration:none; color:var(--ink); background:#fff; }
+  .card:hover { border-color:#9ec6ee; box-shadow:0 4px 14px rgba(11,107,203,.10); }
+  .card b { color:var(--accent); display:block; margin-bottom:3px; }
+  .card span { color:var(--muted); font-size:14.5px; line-height:1.45; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Computer Security Project</p>
+    <h1>Can Abnormal IoT Traffic Be Detected?</h1>
+    <p class="sub">Behavioral detection of botnet-infected IoT devices using machine learning &middot; N-BaIoT dataset</p>
+    
+<nav class="tabs">
+  <a href="index.html" class="active">Overview</a>
+  <a href="notebook.html">Notebook &amp; results</a>
+  <a href="presentation.html">Presentation</a>
+  <a href="https://github.com/manganjokean/computer-security-project/blob/main/report/report.tex">Report (LaTeX)</a>
+  <a href="https://github.com/manganjokean/computer-security-project/releases/tag/nbaiot-data">Dataset</a>
+  <a href="https://github.com/manganjokean/computer-security-project">GitHub</a>
+</nav>
+  </div>
+</header>
+<main class="wrap">
+
+<div class="cards">
+  <a class="card" href="notebook.html"><b>Notebook &amp; results &rarr;</b>
+    <span>The full analysis with every chart, metric table, confusion matrix and SHAP plot rendered.</span></a>
+  <a class="card" href="presentation.html"><b>Presentation outline &rarr;</b>
+    <span>10&ndash;15 minute talk plan: problem, dataset, methodology, results, implications.</span></a>
+  <a class="card" href="https://github.com/manganjokean/computer-security-project/blob/main/report/report.tex"><b>Written report &rarr;</b>
+    <span>Final report source (LaTeX), plus the proposal and notebook code on GitHub.</span></a>
+  <a class="card" href="https://github.com/manganjokean/computer-security-project/releases/tag/nbaiot-data"><b>Dataset download &rarr;</b>
+    <span>9 device archives, 1.77 GB compressed (7.58 GB extracted).</span></a>
+</div>
+<p><strong>Behavioral Detection of Botnet-Infected IoT Devices using Machine Learning</strong></p>
+<p>Computer Security Project — data-driven security analysis of IoT botnet traffic.</p>
+<hr />
+<h2>Dataset</h2>
+<table>
+<thead>
+<tr>
+  <th>Field</th>
+  <th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><strong>Name</strong></td>
+  <td>N-BaIoT Dataset to Detect IoT Botnet Attacks</td>
+</tr>
+<tr>
+  <td><strong>Kaggle URL</strong></td>
+  <td><a href="https://www.kaggle.com/datasets/mkashifn/nbaiot-dataset">https://www.kaggle.com/datasets/mkashifn/nbaiot-dataset</a></td>
+</tr>
+<tr>
+  <td><strong>Description</strong></td>
+  <td>Real network traffic from nine commercial IoT devices (doorbells, thermostat, baby monitor, security cameras, webcam) captured first under normal operation, then after authentic infection with the <strong>Mirai</strong> and <strong>BASHLITE (Gafgyt)</strong> botnets. Each record holds 115 behavioral statistics — packet size, packet count, and packet jitter — aggregated across five time windows (100 ms, 500 ms, 1.5 s, 10 s, 1 min).</td>
+</tr>
+<tr>
+  <td><strong>Target</strong></td>
+  <td>Constructed binary label: <code>0 = benign</code>, <code>1 = malicious</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cite the dataset:</strong> Kashif, M. (2020). <em>N-BaIoT Dataset to Detect IoT Botnet Attacks</em> [Data set]. Kaggle.</p>
+<hr />
+<h2>Security problem</h2>
+<p>IoT devices are routinely compromised and conscripted into botnets such as Mirai. They cannot run endpoint security software, so the only scalable control is <strong>network-side monitoring</strong> — observing traffic behavior from a gateway or IDS and flagging deviation from a device's own baseline.</p>
+<p><strong>Research question:</strong> <em>Can behavioral network-traffic features accurately distinguish benign IoT traffic from botnet-infected IoT traffic?</em></p>
+<hr />
+<h2>Repository contents</h2>
+<pre><code>Computer Security Project/
+├── proposal.md                 # Deliverable A — 1-page project proposal
+├── iot_botnet_detection.ipynb  # Deliverable B — analysis notebook (run on Google Colab)
+├── README.md                   # this file
+├── requirements.txt            # Python dependencies
+├── data/                       # N-BaIoT CSVs (not in git — download from Releases)
+├── report/
+│   └── report.tex              # Deliverable C — final report (LaTeX, for Overleaf)
+└── presentation/
+    └── presentation_outline.md # Deliverable D — 10–15 min talk outline + Q&amp;A
+</code></pre>
+<p>The final report is written in LaTeX on Overleaf; the notebook exports
+ready-to-paste LaTeX tables from every evaluation section.</p>
+<hr />
+<h2>Running the project</h2>
+<h3>Step 0 — Get the dataset (once)</h3>
+<p><strong>Option A — this repository's release</strong> (no login, fastest):
+<a href="https://github.com/manganjokean/computer-security-project/releases/tag/nbaiot-data">https://github.com/manganjokean/computer-security-project/releases/tag/nbaiot-data</a>
+Nine <code>.tar.gz</code> archives — one per device — plus the dataset's own
+description file: <strong>1.77 GB compressed</strong> (7.58 GB extracted). Extract all
+nine next to the notebook; each unpacks straight into its device folder:</p>
+<pre><code class="language-bash">tar -xzf Danmini_Doorbell.tar.gz     # macOS / Linux / Windows 10+ (tar is built in)
+</code></pre>
+<p><strong>Option B — Kaggle</strong> (free account required):
+<a href="https://www.kaggle.com/datasets/mkashifn/nbaiot-dataset">https://www.kaggle.com/datasets/mkashifn/nbaiot-dataset</a> → <strong>Download</strong></p>
+<p><strong>Option C — UCI mirror</strong> (no login, identical data):</p>
+<pre><code>https://archive.ics.uci.edu/static/public/442/detection+of+iot+botnet+attacks+n+baiot.zip
+</code></pre>
+<blockquote>
+<p>⚠️ <strong>The UCI archive ships the attack traffic inside <code>.rar</code> files</strong>, not as
+CSVs. Extract each <code>mirai_attacks.rar</code> and <code>gafgyt_attacks.rar</code> into a
+subfolder named after the botnet inside its device folder — keeping them in
+<em>separate</em> subfolders matters, because both botnets ship a file called
+<code>scan.csv</code>:</p>
+<pre><code>data/
+  Danmini_Doorbell/
+    benign_traffic.csv
+    mirai/    ack.csv scan.csv syn.csv udp.csv udpplain.csv
+    gafgyt/   combo.csv junk.csv scan.csv tcp.csv udp.csv
+</code></pre>
+<p>The finished folder holds ~90 CSVs across 9 device folders (≈7.6 GB). The
+notebook detects an un-extracted archive and tells you what to do rather than
+silently loading only benign traffic.</p>
+</blockquote>
+<h3>Option A — Google Colab (recommended)</h3>
+<ol>
+<li>Go to <a href="https://colab.research.google.com/">https://colab.research.google.com/</a> → <strong>File → Upload notebook</strong> →
+select <code>iot_botnet_detection.ipynb</code>.</li>
+<li>Put the extracted <code>data/</code> folder somewhere reachable (Drive mount is easiest).
+If you skip this, the notebook prompts you to upload the zip when it runs.</li>
+<li><strong>Runtime → Run all.</strong> CPU runtime is sufficient — no GPU needed.</li>
+<li>Expect <strong>roughly 10–20 minutes</strong> for the full 7.6 GB corpus.</li>
+</ol>
+<h3>Option B — Local Jupyter</h3>
+<pre><code class="language-bash">pip install -r requirements.txt
+jupyter notebook iot_botnet_detection.ipynb
+</code></pre>
+<p>Place the extracted dataset in a folder named <code>data/</code>, <code>nbaiot-dataset/</code>,
+<code>N-BaIoT/</code>, <code>dataset/</code>, or next to the notebook — the loader searches all of
+them automatically.</p>
+<h3>Troubleshooting</h3>
+<table>
+<thead>
+<tr>
+  <th>Symptom</th>
+  <th>Cause / fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>No usable CSV files found</code></td>
+  <td>Dataset isn't in a searched folder — use the upload prompt or rename your folder <code>data</code></td>
+</tr>
+<tr>
+  <td><code>AssertionError: No attack CSVs found…</code></td>
+  <td>The <code>.rar</code> archives were never extracted</td>
+</tr>
+<tr>
+  <td><code>Dataset not found — upload nbaiot-dataset.zip</code></td>
+  <td>The upload box appeared; select your zip</td>
+</tr>
+<tr>
+  <td><code>jinja2</code> / <code>to_latex</code> error</td>
+  <td><code>pip install jinja2</code> (preinstalled on Colab)</td>
+</tr>
+</tbody>
+</table>
+<h3>Reproducibility</h3>
+<p>Every random seed is fixed at <code>SEED = 42</code>. Sampling, train/test split, model
+initialization, and the SHAP subsample are all deterministic, so re-running
+produces identical metrics.</p>
+<hr />
+<h2>What the notebook does</h2>
+<table>
+<thead>
+<tr>
+  <th>§</th>
+  <th>Rubric step</th>
+  <th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>1</td>
+  <td>Select a Kaggle Dataset</td>
+  <td>Dataset metadata, file inventory, feature descriptions</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td>Define a Security Problem</td>
+  <td>Mirai/BASHLITE threat model, research question</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td>Data Exploration</td>
+  <td>Class/device distributions, missing values, duplicates, log-scaled feature distributions, correlation heatmap, effect-size ranking</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td>Data Preprocessing</td>
+  <td>Deduplication, stratified split, variance + correlation pruning, median imputation, one-hot encoding, standardization, class weighting — each justified in place</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td>Security Analysis / ML</td>
+  <td>Logistic Regression, Random Forest, XGBoost, Isolation Forest (trained on benign only)</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td>Model Evaluation</td>
+  <td>Accuracy, precision, recall, F1, ROC-AUC, confusion matrices, <strong>FPR/FNR</strong>, per-device and per-attack breakdowns, operational alert-volume translation</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td>Security Interpretation</td>
+  <td>What is detected, which attacks are missed, FP/FN consequences, deployment design, limitations</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td>Advanced component</td>
+  <td>SHAP summary plot + feature importance + single-flow explanations</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td>Conclusion &amp; References</td>
+  <td>Answer to the research question, citations</td>
+</tr>
+</tbody>
+</table>
+<h3>Methods and why they were chosen</h3>
+<ul>
+<li><strong>Logistic Regression</strong> — interpretable baseline; each coefficient is a signed
+weight on a traffic statistic.</li>
+<li><strong>Random Forest</strong> — captures non-linear and interaction effects; built-in
+feature importance; robust to skewed input.</li>
+<li><strong>XGBoost</strong> — strongest tabular performance; exposes SHAP values for
+explainability.</li>
+<li><strong>Isolation Forest</strong> — <em>unsupervised anomaly detection</em> trained on <strong>benign
+traffic only</strong>, so it never sees an attack. This is the closest analogue to a
+real IDS that cannot enumerate every future attack signature.</li>
+</ul>
+<hr />
+<h2>Results (summary)</h2>
+<p>Sampled 150,304 of <strong>7,062,606</strong> records · 115 → <strong>36</strong> features after pruning ·
+120,166 train / 30,042 test (<strong>2,416 benign / 27,626 malicious</strong>) · <code>SEED = 42</code></p>
+<table>
+<thead>
+<tr>
+  <th>Model</th>
+  <th>Acc</th>
+  <th>Prec</th>
+  <th>Recall</th>
+  <th>F1</th>
+  <th>ROC-AUC</th>
+  <th><strong>FPR</strong></th>
+  <th><strong>FNR</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>Logistic Regression</td>
+  <td>0.9992</td>
+  <td>0.9996</td>
+  <td>0.9996</td>
+  <td>0.9996</td>
+  <td>0.9989</td>
+  <td>0.0046</td>
+  <td>0.0004</td>
+</tr>
+<tr>
+  <td>Random Forest</td>
+  <td>0.9999</td>
+  <td>1.0000</td>
+  <td>0.9999</td>
+  <td>1.0000</td>
+  <td>1.0000</td>
+  <td>0.0000</td>
+  <td>0.0001</td>
+</tr>
+<tr>
+  <td><strong>XGBoost</strong></td>
+  <td><strong>1.0000</strong></td>
+  <td><strong>1.0000</strong></td>
+  <td><strong>1.0000</strong></td>
+  <td><strong>1.0000</strong></td>
+  <td><strong>1.0000</strong></td>
+  <td><strong>0.0000</strong></td>
+  <td><strong>0.0000</strong></td>
+</tr>
+<tr>
+  <td>Isolation Forest</td>
+  <td>0.2978</td>
+  <td>0.9706</td>
+  <td>0.2438</td>
+  <td>0.3897</td>
+  <td>0.8835</td>
+  <td>0.0844</td>
+  <td>0.7562</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Headline findings</strong></p>
+<ol>
+<li><strong>Supervised detection works across the fleet.</strong> XGBoost F1 = 1.0000 on
+eight of nine devices (0.9999 on the Ecobee); Random Forest ≥ 0.9998
+everywhere; Logistic Regression dips only to 0.9982.</li>
+<li><strong>Unsupervised anomaly detection fails on the attacks that matter most.</strong>
+The Isolation Forest detected <code>mirai_scan</code> and <code>mirai_syn</code> <strong>0%</strong> of the
+time and <code>gafgyt_scan</code> at 2.3% — the propagation phase — while catching only
+the three highest-rate Mirai floods (~0.65). Overall it missed <strong>3 of every
+4 attack instances</strong>.</li>
+<li><strong>The signal is volume and burstiness, not payload.</strong> <code>MI_dir_L0.1_weight</code>
+averages 14.5 benign vs <strong>3,689.6</strong> infected (<strong>254×</strong>); the top two
+features, <code>HpHp_L0.01_radius</code> (0.6898) and <code>HH_L0.01_pcc</code> (0.1829), carry
+<strong>87%</strong> of XGBoost's total gain — both are socket/channel statistics over
+the shortest, 10 ms window.</li>
+<li><strong>Accuracy is the wrong headline metric.</strong> At 1,000,000 benign flows/day the
+measured FPRs translate to <strong>4,553 false alerts/day</strong> (Logistic Regression)
+and <strong>84,437/day</strong> (Isolation Forest) — while the latter also misses
+~7,562 attacks/day.</li>
+<li><strong>The &quot;zero&quot; FPR is not certified.</strong> Only 2,416 benign flows reached the test
+set, so by the rule of three the true FPR is only bounded to ≲0.124% (95%
+CI) — up to ~1,242 alerts/day. Combined with a corpus that is 91.9%
+malicious (<strong>11.4 : 1</strong>, the inverse of production), every precision figure
+here is optimistic.</li>
+</ol>
+<p>Full interpretation: notebook §7 and report §Security Analysis.</p>
+<hr />
+<h2>Academic integrity</h2>
+<ul>
+<li>The dataset is cited above and in the notebook's References section.</li>
+<li>The original N-BaIoT paper (Meidan et al., arXiv:1805.03409) is cited.</li>
+<li>All code, analysis, and visualizations in this repository were written for
+this project. No external Kaggle notebook was reproduced.</li>
+<li>Libraries used: scikit-learn, XGBoost, SHAP, pandas, NumPy, Matplotlib, Seaborn.</li>
+</ul>
+
+</main>
+<footer><div class="wrap">
+  Dataset: Kashif, M. (2020). <i>N-BaIoT Dataset to Detect IoT Botnet Attacks</i>, Kaggle &middot;
+  Meidan et al. (2018), arXiv:1805.03409 &middot;
+  Built from this repository&rsquo;s <a href="https://github.com/manganjokean/computer-security-project">README</a>.
+</div></footer>
+</body>
+</html>
