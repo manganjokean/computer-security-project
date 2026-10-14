@@ -1,0 +1,675 @@
+% =====================================================================
+%  Final Report — Computer Security Project   (Deliverable C)
+%  Recommended length: 6 pages
+%
+%  HOW TO USE THIS FILE
+%  1. Paste into a new Overleaf project. It compiles as-is.
+%  2. Search this file for  FILLIN  (shown in red in the PDF) and replace
+%     every occurrence with real numbers from your Colab notebook.
+%  3. The five tables below mirror the LaTeX tables the notebook prints
+%     under "--- LaTeX ---". Paste those blocks over the placeholders.
+%  4. Replace \figbox{...} with \includegraphics{...} once you have
+%     exported the PNGs from the notebook (keep the \caption).
+% =====================================================================
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx, booktabs, xcolor, hyperref, amsmath, array, enumitem, caption}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+\hypersetup{colorlinks=true, linkcolor=blue!50!black, citecolor=blue!50!black, urlcolor=blue!50!black}
+
+% ---- edit-me markers -------------------------------------------------
+\newcommand{\fillin}[1]{\textcolor{red}{\textbf{[#1]}}}
+% ---- placeholder figure box (replace with \includegraphics) ----------
+\newcommand{\figbox}[2]{%
+  \begin{center}
+    \fbox{\parbox[c][0.30\textheight][c]{0.96\textwidth}{\centering\large\textit{#1}}}
+    \\[4pt]\textbf{Figure placeholder:} #2
+  \end{center}}
+
+\title{\textbf{Can Abnormal IoT Traffic Be Detected?}\\[4pt]
+\large Behavioral Detection of Botnet-Infected IoT Devices using Machine Learning}
+\author{\fillin{Your Name}\\ \fillin{Course Name / Number}\\ \fillin{Instructor}}
+\date{\fillin{Date}}
+
+\begin{document}
+\maketitle
+
+% =====================================================================
+\section{Introduction}
+% =====================================================================
+The Internet of Things has expanded far faster than the security controls
+available to protect it. Tens of billions of devices --- cameras, doorbells,
+thermostats, baby monitors, industrial sensors --- are now connected to home
+and enterprise networks, and they share three properties that make them
+attractive targets: they ship with default or hard-coded credentials, they are
+rarely patched, and they cannot run endpoint security software. Once
+compromised they are routinely conscripted into botnets such as \textbf{Mirai}
+and \textbf{BASHLITE (Gafgyt)}, which have been used to launch some of the
+largest distributed denial-of-service (DDoS) attacks on record
+\cite{kolias2017ddos}.
+
+Because host-based defenses are not available for these devices, the only
+control that scales is \emph{network-side monitoring}: observing a device's
+traffic from a gateway or intrusion detection system (IDS) and flagging
+behaviour that deviates from its own established baseline. This project asks
+whether that is achievable in practice from behavioural traffic features
+alone.
+
+\medskip
+\noindent\textbf{Research question:}
+\emph{Can behavioral network-traffic features accurately distinguish benign
+IoT traffic from botnet-infected IoT traffic?}
+
+The analysis uses the \textbf{N-BaIoT} dataset \cite{kashif2020nbaiot},
+which contains real traffic from nine commercial IoT devices captured before
+and after authentic infection with Mirai and BASHLITE. Four machine learning
+methods are compared --- Logistic Regression, Random Forest, XGBoost, and an
+Isolation Forest anomaly detector --- and the results are interpreted not
+merely as accuracy figures but in terms of what they mean for a security
+operator: which attacks are caught, which slip through, and what the false
+positive and false negative rates cost in the real world.
+
+% =====================================================================
+\section{Security Problem}
+% =====================================================================
+The specific problem investigated is the \textbf{detection of compromised IoT
+devices that have joined a botnet, using only their network traffic
+behaviour}.
+
+Mirai and BASHLITE follow a well-documented lifecycle: \emph{propagation}
+(scanning for new victims), \emph{infection} (brute-forcing default Telnet
+credentials), \emph{command and control}, and \emph{execution} (launching
+floods on command). This project targets the \emph{execution} stage, because
+it is the stage that causes external harm: at that moment the device is
+actively attacking someone else's network from inside yours.
+
+Three constraints shape the solution:
+
+\begin{enumerate}[itemsep=2pt]
+  \item \textbf{No endpoint agent.} IoT devices lack the storage, memory and
+        power budget for host-based detection, and users rarely patch them.
+  \item \textbf{Heterogeneity.} A single site may host dozens of device
+        models, each with its own traffic fingerprint.
+  \item \textbf{Scale.} Manual inspection of traffic is impossible; detection
+        must be automated and cheap enough to run continuously at the edge.
+\end{enumerate}
+
+A behavioural, network-based detector satisfies all three: it runs on the
+access point or gateway, consumes no device resources, and needs no vendor
+cooperation.
+
+\medskip
+A critical point frames everything that follows. For a security tool,
+\textbf{accuracy is not the objective}. A false negative leaves a compromised
+device attacking from inside the network; a false positive can take a
+legitimate --- and possibly safety-critical --- device offline and contribute
+to analyst alert fatigue. Both error types are therefore reported explicitly
+throughout, and their asymmetric consequences are analysed in
+Section~\ref{sec:analysis}.
+
+% =====================================================================
+\section{Dataset Description}
+% =====================================================================
+The dataset used is \textbf{N-BaIoT Dataset to Detect IoT Botnet Attacks}
+\cite{kashif2020nbaiot}, available at
+\url{https://www.kaggle.com/datasets/mkashifn/nbaiot-dataset}. It originates
+from the Ben-Gurion University lab study described by Meidan et al.
+\cite{meidan2018nbaiot} and is also mirrored at UCI \cite{uci442}.
+
+\begin{table}[h]
+\centering
+\caption{Dataset summary.}
+\label{tab:dataset}
+\begin{tabular}{@{} p{0.32\textwidth} p{0.6\textwidth} @{}}
+\toprule
+\textbf{Field} & \textbf{Value} \\
+\midrule
+Name & N-BaIoT Dataset to Detect IoT Botnet Attacks \\
+Kaggle URL & \url{https://www.kaggle.com/datasets/mkashifn/nbaiot-dataset} \\
+Records & 7,062,606 on disk; 150,304 sampled \\
+Features & 115 behavioural statistics \\
+Target variable & \texttt{label}: \texttt{0 = benign}, \texttt{1 = malicious} \\
+Devices & 9 commercial IoT devices \\
+Attack types & Mirai and BASHLITE variants: UDP, TCP, ACK, SYN, UDPplain, Scan, Junk \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Rather than raw packets, each record is a \emph{behavioral snapshot}: 23
+statistics computed over each of five time windows (100\,ms, 500\,ms, 1.5\,s,
+10\,s, 1\,min), giving $23 \times 5 = 115$ features. The statistics are
+aggregated by source IP, source MAC-IP, channel, and socket.
+
+\begin{table}[h]
+\centering
+\caption{Description of important features.}
+\label{tab:features}
+\begin{tabular}{@{} p{0.30\textwidth} p{0.30\textwidth} p{0.34\textwidth} @{}}
+\toprule
+\textbf{Feature group} & \textbf{Statistics} & \textbf{Security relevance} \\
+\midrule
+Packet size (outbound) & mean, variance & Floods replace normal payloads with
+uniform junk or oversized packets \\
+Packet count & count & Scanning and flooding push packet rates far above the
+device baseline \\
+Packet jitter & mean, variance, number & Flood generators are mechanically
+regular; command-and-control beacons alter inter-arrival timing \\
+Packet size (in + out) & magnitude, radius, covariance, correlation &
+Captures the shift from bidirectional request/response to one-way attack
+traffic \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Data Exploration}\label{sec:eda}
+Exploratory analysis covered class distribution, per-device composition,
+missing values, duplicate records, feature distributions, correlation
+structure, and per-feature effect sizes.
+
+\figbox{Class distribution + records per device (bar charts)}
+{Generated by the notebook's \texttt{Class distribution + device composition} cell.}
+
+\figbox{Correlation heatmap of the highest-variance features}
+{Generated by the notebook's \texttt{Correlation analysis} cell.}
+
+\noindent Key observations:
+
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{Class distribution.} The 150,304-row sample holds
+        \textbf{12,113 benign (8.1\%)} against \textbf{138,191 malicious
+        (91.9\%)} --- a ratio of \textbf{11.4:1}. A production network is the
+        exact opposite, so this inverted prior is the single largest caveat in
+        the study and is revisited in Section~\ref{sec:limitations}.
+  \item \textbf{Missing values and duplicates.} \textbf{Zero missing values}
+        across all 115 features, and \textbf{96 exact duplicate records}
+        (0.06\%: 35 benign, 61 malicious).
+        Duplicates arise because flood generators emit byte-identical flow
+        snapshots repeatedly; they were removed before splitting.
+  \item \textbf{Distribution shape.} Flow statistics are strongly
+        right-skewed, motivating log-scale plots and favouring tree-based
+        models over linear ones.
+  \item \textbf{Correlation.} Large blocks of near-duplicate features exist
+        because the same 23 statistics repeat across five time windows;
+        \textbf{334} feature pairs exceeded $|r| > 0.95$ (mean absolute
+        correlation 0.272) --- a direct consequence of repeating the same 23
+        statistics across five windows.
+  \item \textbf{Separating features.} The largest effect sizes are all
+        \texttt{weight} statistics --- the number of packets observed in the
+        recent window. \texttt{MI\_dir\_L0.1\_weight} averages \textbf{14.5}
+        on benign traffic versus \textbf{3,689.6} when infected
+        (\textbf{254$\times$, $d = 2.56$}); \texttt{MI\_dir\_L0.01\_weight}
+        averages 68.9 versus 21,472.4 ($311\times$). An infected device simply
+        moves two to three orders of magnitude more packets in the shortest
+        windows.
+\end{itemize}
+
+% =====================================================================
+\section{Data Preprocessing}
+% =====================================================================
+Each step below is necessary for a specific reason; all data-dependent
+transforms are fitted on the training partition only.
+
+\begin{table}[h]
+\centering
+\caption{Preprocessing steps and their justification.}
+\label{tab:preprocessing}
+\begin{tabular}{@{} p{0.28\textwidth} p{0.64\textwidth} @{}}
+\toprule
+\textbf{Step} & \textbf{Why it is necessary} \\
+\midrule
+Remove duplicates & Byte-identical flood snapshots would otherwise appear in
+both train and test, inflating accuracy and wasting memory. Performed
+\emph{before} the split so no duplicate can leak across partitions. \\
+\addlinespace
+Train/test split & A stratified $80/20$ split keyed on
+$\text{device} \times \text{label}$ guarantees every device and both classes
+appear in both partitions, making the per-device results in
+Section~\ref{sec:results} valid. \\
+\addlinespace
+Missing values & Median imputation, robust to the heavy right skew of flow
+statistics. Fitted on training data only. \\
+\addlinespace
+Feature selection & Near-zero-variance and highly correlated features
+($|r| > 0.95$) slow training, destabilise logistic-regression coefficients,
+and dilute importance rankings. Reduces \textbf{115} to \textbf{36}
+features. \\
+\addlinespace
+Encoding categorical & The device identity is a legitimate but \emph{nominal}
+feature; one-hot encoding avoids implying a non-existent ordering. \\
+\addlinespace
+Feature scaling & Standardisation puts all features on one range so
+gradient-based models converge and no single large-magnitude statistic
+dominates. Fitted on training data only. \\
+\addlinespace
+Imbalanced classes & \texttt{class\_weight='balanced'} penalises errors on the
+minority class proportionally to its rarity; recall, F1, FPR and FNR are
+reported instead of accuracy alone. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% =====================================================================
+\section{Methodology}
+% =====================================================================
+Four methods were selected to span complementary assumptions about what
+\emph{abnormal} means, exceeding the two-method minimum:
+
+\begin{table}[h]
+\centering
+\caption{Methods and how each addresses the security problem.}
+\label{tab:methods}
+\begin{tabular}{@{} p{0.20\textwidth} p{0.16\textwidth} p{0.56\textwidth} @{}}
+\toprule
+\textbf{Method} & \textbf{Type} & \textbf{Role in the analysis} \\
+\midrule
+Logistic Regression & Supervised, linear & Interpretable baseline. Each
+coefficient is a signed weight on a traffic statistic, so the direction and
+magnitude of each behaviour's contribution can be read directly. \\
+\addlinespace
+Random Forest & Supervised, ensemble & Captures non-linear and interaction
+effects (jitter matters only when packet rate is also elevated) and supplies a
+built-in feature-importance ranking. \\
+\addlinespace
+XGBoost & Supervised, boosting & Strongest tabular learner; provides
+calibrated scores and SHAP values for explainability. \\
+\addlinespace
+Isolation Forest & \textbf{Unsupervised anomaly detection} & Trained on
+\emph{benign traffic only} --- it never sees an attack. It flags statistically
+unusual flows, so it can in principle detect novel behaviour that no labelled
+training set contains. Closest analogue to a real-world IDS. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+All models were implemented in Python using scikit-learn, XGBoost and SHAP
+\cite{pedregosa2011sklearn, chen2017xgboost, liu2008isolation,
+lundberg2017shap, breiman2001random}. Every random seed was fixed at
+\texttt{SEED = 42} for reproducibility.
+
+% =====================================================================
+\section{Experimental Results}\label{sec:results}
+% =====================================================================
+After de-duplication the corpus held 150,208 rows, split 80/20 into
+\textbf{120,166 training} and \textbf{30,042 test} rows --- the test partition
+containing only \textbf{2,416 benign} and \textbf{27,626 malicious} flows. That
+benign count is small enough to matter: see Section~\ref{sec:limitations}.
+
+\begin{table}[h]
+\centering
+\caption{Overall model performance on the held-out test set.}
+\label{tab:overall}
+\begin{tabular}{@{} l c c c c c c c @{}}
+\toprule
+\textbf{Model} & \textbf{Acc.} & \textbf{Prec.} & \textbf{Recall} &
+\textbf{F1} & \textbf{AUC} & \textbf{FPR} & \textbf{FNR} \\
+\midrule
+Logistic Regression & 0.9992 & 0.9996 & 0.9996 & 0.9996 & 0.9989 & 0.0046 & 0.0004 \\
+Random Forest       & 0.9999 & 1.0000 & 0.9999 & 1.0000 & 1.0000 & 0.0000 & 0.0001 \\
+XGBoost             & 1.0000 & 1.0000 & 1.0000 & 1.0000 & 1.0000 & 0.0000 & 0.0000 \\
+Isolation Forest    & 0.2978 & 0.9706 & 0.2438 & 0.3897 & 0.8835 & 0.0844 & 0.7562 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\figbox{Confusion matrices (one per model)}
+{Notebook cell: \texttt{Confusion matrices}.}
+
+\figbox{ROC curves with AUC values}
+{Notebook cell: \texttt{ROC curves}.}
+
+\subsection*{Detection rate by attack type}
+\begin{table}[h]
+\centering
+\caption{Detection rate by attack type. Attack rows = recall; the benign row = specificity.}
+\label{tab:attacks}
+\begin{tabular}{@{} l c c c @{}}
+\toprule
+\textbf{Attack} & \textbf{Random Forest} & \textbf{XGBoost} & \textbf{Isolation Forest} \\
+\midrule
+mirai\_udpplain & 1.0000 & 1.0000 & 0.6523 \\
+mirai\_udp      & 1.0000 & 1.0000 & 0.6514 \\
+mirai\_ack      & 1.0000 & 1.0000 & 0.6491 \\
+gafgyt\_junk    & 1.0000 & 1.0000 & \textbf{0.0274} \\
+gafgyt\_scan    & 1.0000 & 1.0000 & \textbf{0.0226} \\
+gafgyt\_combo   & 1.0000 & 1.0000 & \textbf{0.0024} \\
+gafgyt\_udp     & 0.9998 & 0.9998 & \textbf{0.0002} \\
+gafgyt\_tcp     & 0.9997 & 1.0000 & \textbf{0.0000} \\
+mirai\_scan     & 1.0000 & 1.0000 & \textbf{0.0000} \\
+mirai\_syn      & 1.0000 & 1.0000 & \textbf{0.0000} \\
+benign (specificity) & 1.0000 & 1.0000 & 0.9156 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection*{Operational translation of the error rates}
+\begin{table}[h]
+\centering
+\caption{Operational impact at 1{,}000{,}000 benign flows per day.}
+\label{tab:ops}
+\begin{tabular}{@{} l c c c @{}}
+\toprule
+\textbf{Model} & \textbf{FPR} & \textbf{False alerts / day} & \textbf{Missed attacks / day} \\
+\midrule
+Logistic Regression & 0.0046 & 4{,}553 & 4.3 \\
+Random Forest       & 0.0000 & 0 & 0.7 \\
+XGBoost             & 0.0000 & 0 & 0.4 \\
+Isolation Forest    & 0.0844 & 84{,}437 & 7{,}562 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent This table is the bridge between benchmark metrics and deployment
+relevance: an FPR that looks negligible in a paper becomes \textbf{4,553
+false alerts per day} for Logistic Regression and \textbf{84,437 per day} for
+the Isolation Forest. Even the measured ``zero'' of Random Forest and XGBoost
+only bounds the true rate to $\lesssim 0.124\%$ at 95\% confidence (rule of
+three over 2,416 benign flows), i.e.\ up to $\sim$1,242 alerts per day. This is
+what determines whether an operator keeps the system switched on.
+
+\subsection*{Per-device performance}
+\begin{table}[h]
+\centering
+\caption{F1-score per device (pooled model evaluated on each device separately).}
+\label{tab:per_device}
+\begin{tabular}{@{} l c c c c @{}}
+\toprule
+\textbf{Device} & \textbf{Log. Reg.} & \textbf{Rand. Forest} & \textbf{XGBoost} & \textbf{Isol. Forest} \\
+\midrule
+Danmini Doorbell                    & 0.9996 & 1.0000 & 1.0000 & 0.4178 \\
+Ecobee Thermostat                   & 0.9996 & 0.9999 & 0.9999 & 0.4874 \\
+Ennio Doorbell                      & 1.0000 & 1.0000 & 1.0000 & \textbf{0.0015} \\
+Philips B120N10 Baby Monitor        & 0.9999 & 1.0000 & 1.0000 & 0.4216 \\
+Provision PT 737E Security Camera   & 0.9997 & 1.0000 & 1.0000 & 0.2785 \\
+Provision PT 838 Security Camera    & 0.9994 & 0.9998 & 1.0000 & 0.2719 \\
+Samsung SNH 1011 N Webcam           & 0.9982 & 1.0000 & 1.0000 & \textbf{0.0015} \\
+SimpleHome XCS7 1002 WHT Cam.       & 0.9994 & 1.0000 & 1.0000 & 0.4279 \\
+SimpleHome XCS7 1003 WHT Cam.       & 0.9999 & 1.0000 & 1.0000 & 0.5894 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent The pooled supervised model generalises across the fleet: XGBoost
+scores 1.0000 on eight of nine devices (0.9999 on the Ecobee), Random Forest
+stays at or above 0.9998 everywhere, and Logistic Regression only dips to
+0.9982 on the Samsung webcam. The Isolation Forest, by contrast, is worse than
+random on two devices (\textbf{F1 = 0.0015} on both the Ennio Doorbell and the
+Samsung webcam) and never exceeds 0.59. Two of the nine devices --- the Ennio
+Doorbell and the Samsung webcam, which ship only six attack files each
+(BASHLITE only) --- collapse entirely, a strong argument that a single pooled
+anomaly threshold cannot serve a heterogeneous fleet.
+\figbox{F1, FPR and FNR broken down by device}
+{Notebook cell: \texttt{Per-device performance}.}
+
+% =====================================================================
+\section{Security Analysis}\label{sec:analysis}
+% =====================================================================
+\subsection{What the detector actually detects}
+The models distinguish benign traffic from traffic produced by devices running
+Mirai or BASHLITE --- concretely, a device that is scanning for new victims,
+flooding a target, or transmitting junk data on command. Detecting this stage
+matters because it is the stage that causes external harm.
+
+They do it without ever inspecting a payload. The largest effect sizes in
+Section~\ref{sec:eda} are all \emph{packet-volume} statistics:
+\texttt{MI\_dir\_L0.1\_weight} averages \textbf{14.5} on benign traffic and
+\textbf{3,689.6} when infected --- \textbf{254$\times$} more packets in a
+0.1\,s window. The detector is effectively noticing that a device whose job is
+to measure temperature or stream a doorbell view has begun generating traffic
+at flood rates. Task-oriented devices are predictable, so the deviation is
+enormous rather than subtle; that is what makes IoT botnet detection tractable
+at all.
+
+\subsection{Which attacks are difficult to detect}
+The answer splits sharply by method.
+
+\textbf{Supervised models miss essentially nothing.} Random Forest and XGBoost
+reached recall 1.0000 on \emph{nine of the ten} attack types; the only
+sub-perfect cells were \texttt{gafgyt\_tcp} (RF 0.9997) and \texttt{gafgyt\_udp}
+(RF and XGBoost 0.9998). Logistic Regression missed 12 instances in total.
+
+\textbf{Unsupervised detection fails on exactly the attacks that matter most.}
+The Isolation Forest caught only the three highest-rate Mirai floods
+(\texttt{mirai\_udpplain} 0.6523, \texttt{mirai\_udp} 0.6514,
+\texttt{mirai\_ack} 0.6491) and scored:
+\textbf{0.0000} on \texttt{mirai\_scan} and \texttt{mirai\_syn},
+\textbf{0.0000} on \texttt{gafgyt\_tcp}, \textbf{0.0002} on
+\texttt{gafgyt\_udp}, \textbf{0.0024} on \texttt{gafgyt\_combo},
+\textbf{0.0226} on \texttt{gafgyt\_scan} and \textbf{0.0274} on
+\texttt{gafgyt\_junk}. Overall it missed \textbf{three out of every four attack
+instances} (FNR 0.7562).
+
+Two conclusions follow. First, \textbf{scanning is both the hard case and the
+dangerous one}: it is the \emph{propagation} phase, so a miss lets the botnet
+keep recruiting while a flood is loud but self-limiting. Second, \textbf{``anomaly
+detection'' is not automatically good at detecting attacks} --- benign IoT
+traffic is itself highly variable (a camera streaming video legitimately
+produces huge packet volumes), so high volume alone is not anomalous. The gap
+with the original paper's 100\% TPR is explained by configuration: they used
+one tuned deep autoencoder \emph{per device} with a threshold and voting window
+optimised on held-out benign data, whereas this study used a single pooled
+Isolation Forest with default hyperparameters.
+
+\subsection{Which features are most important}
+XGBoost gain importance is dominated by two features that together carry
+\textbf{87\% of the total}: \texttt{HpHp\_L0.01\_radius} (0.6898) and
+\texttt{HH\_L0.01\_pcc} (0.1829), followed by \texttt{HH\_jit\_L5\_mean}
+(0.0442), \texttt{HH\_L0.01\_weight} (0.0255) and
+\texttt{MI\_dir\_L0.01\_weight} (0.0210).
+
+Their vocabulary is consistent and physically meaningful:
+\textbf{\texttt{L0.01} is the shortest window (10\,ms)}, so detection is driven
+by the most recent few milliseconds rather than long-run averages;
+\textbf{\texttt{HpHp} is the socket level} and \textbf{\texttt{HH} the channel
+level}; and \texttt{radius} is the root-sum-of-squares of the two streams'
+variances --- a direct measure of \emph{burstiness on one connection}, which
+attack floods exhibit and normal request/response traffic does not.
+\texttt{HH\_jit} captures jitter: flood generators and C\&C beacons are
+mechanically timed, real sensors are not.
+
+SHAP on individual predictions agrees and shows both directions:
+\texttt{HH\_jit\_L5\_mean} contributed \textbf{+6.75} to the example malicious
+prediction (every other feature $\leq +0.54$), while
+\texttt{MI\_dir\_L0.01\_weight} contributed \textbf{$-5.05}$ to the benign one.
+
+\medskip
+\noindent\textbf{Operational reading:} the decision rests on burstiness on a
+single socket within the last 10\,ms, corroborated by jitter over the last 5\,s
+and packet volume over the last 10\,ms --- all simple incremental statistics
+cheap enough to compute continuously on gateway hardware.
+
+\subsection{Consequences of false positives}
+A false positive labels a legitimate device as compromised. \textbf{Measured:}
+Logistic Regression produced 11 false positives on 2,416 benign flows (FPR
+0.0046 $\rightarrow$ 4,553 alerts/day), Random Forest and XGBoost produced 0,
+and the Isolation Forest produced 204 (FPR 0.0844 $\rightarrow$ 84,437
+alerts/day).
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{Alert fatigue.} Two alerts per minute (Logistic Regression) is
+        already beyond human triage; 84,437 per day is not a security product,
+        it is a denial of service against your own SOC.
+  \item \textbf{Availability loss.} If the response is automatic quarantine, a
+        false positive takes a camera, doorbell or thermostat offline. For a
+        baby monitor or security camera that is a \emph{physical-safety and
+        privacy outage}, not merely an IT ticket.
+  \item \textbf{Why ``0'' is not really 0.} Only 2,416 benign flows reached the
+        test set. A measured rate of zero over 2,416 trials bounds the true FPR
+        only to $\approx 3/2416 = 0.124\%$ at 95\% confidence --- up to
+        $\sim$1,242 false alerts/day. \textbf{The benign test set is too small
+        to certify the FPR that deployment requires.}
+\end{itemize}
+
+\subsection{Consequences of false negatives}
+A false negative means a compromised device stays on the network.
+\textbf{Measured:} Logistic Regression FN $=$ 12, Random Forest FN $=$ 2,
+XGBoost FN $=$ 0, and Isolation Forest FN $=$ \textbf{20,890} (FNR 0.7562) ---
+about \textbf{7,562 missed attacks per day} at 10,000 attack flows/day.
+\begin{itemize}[itemsep=2pt]
+  \item it continues participating in \textbf{DDoS attacks} against third
+        parties, creating legal and reputational exposure for the network owner;
+  \item it keeps \textbf{scanning and propagating}, recruiting further devices;
+  \item it provides an \textbf{inside foothold} for later lateral movement and
+        data exfiltration;
+  \item in a home, an infected camera is a \textbf{surveillance and privacy
+        breach}.
+\end{itemize}
+
+\medskip
+\noindent This asymmetry is the central security argument of the project:
+\textbf{missed detection is far more damaging than a false alarm}, which is
+why recall and FNR --- rather than accuracy --- are treated as the primary
+measures of success.
+
+\subsection{Use in a real security system}
+The approach would be deployed at the \textbf{Wi-Fi access point or edge
+gateway}, where all device traffic already transits and no agent is required on
+the device --- which is the entire reason network-side detection is the right
+choice for IoT: no firmware patch, no vendor cooperation, no drain on hardware
+that may have kilobytes of headroom.
+
+The per-device breakdown settles the model-topology question. A single pooled
+\emph{supervised} model is sufficient: XGBoost reaches F1 = 1.0000 on eight of
+nine devices and 0.9999 on the ninth. A single pooled \emph{anomaly} model is
+not: the Isolation Forest collapses to F1 = 0.0015 on two devices, supporting
+the original study's argument for \emph{one baseline per device} whenever
+unsupervised detection is used.
+
+A practical response policy uses \textbf{tiered thresholds} chosen from the
+FPR/FNR trade-off in Table~\ref{tab:ops} rather than a defaulted 0.5 cut:
+high-confidence predictions trigger automatic quarantine, medium-confidence
+ones are routed to an analyst. Because firmware updates change traffic
+patterns, models require periodic re-baselining against benign traffic or the
+FPR will drift upward. The feature budget is also favourable --- the top ten
+importances are all simple incremental statistics over 10\,ms--5\,s windows,
+cheap enough for continuous scoring on commodity gateway hardware. Finally, a
+supervised detector can only ever recognise labelled behaviour; a second,
+per-device anomaly model is the natural complement for attacks outside the
+training repertoire, provided it is tuned as carefully as Section~\ref{sec:analysis}
+argues it must be.
+
+\subsection{Limitations}
+See Section~\ref{sec:limitations}.
+
+% =====================================================================
+\section{Limitations}\label{sec:limitations}
+% =====================================================================
+\begin{enumerate}[itemsep=3pt]
+  \item \textbf{Lab versus production.} N-BaIoT was captured in an isolated
+        lab with nine devices and two botnets. Real networks add more devices,
+        more protocols, encrypted traffic, and far more benign variety.
+  \item \textbf{Inverted class prior --- the largest caveat.} The sample is
+        \textbf{91.9\% malicious} (11.4:1). A production network is the
+        opposite. A precision of 1.0000 measured here would collapse under a
+        realistic prior: with FPR 0.0046 and a 0.1\% attack rate, the majority
+        of ``alerts'' would be benign traffic rather than attacks. Every
+        precision figure in Section~\ref{sec:results} is optimistic.
+  \item \textbf{Benign test set too small to certify FPR.} Only 2,416 benign
+        flows were held out. Zero observed false positives bounds the true rate
+        only to $\lesssim 0.124\%$ (95\% CI) --- up to $\sim$1,242 false
+        alerts/day at one million flows.
+  \item \textbf{Naive anomaly-detector configuration.} One pooled Isolation
+        Forest, default \texttt{contamination}, no per-device baseline, no
+        threshold tuning, no majority-vote window. Its poor result is a property
+        of this configuration, not a verdict on anomaly detection.
+  \item \textbf{Random rather than chronological split.} Rows were split
+        randomly, so near-identical consecutive flow snapshots may appear on
+        both sides of the split. This inflates results and is stated openly.
+  \item \textbf{No adversarial testing.} An attacker aware that detection
+        relies on jitter and rate statistics can shape traffic to evade them
+        (rate-limiting, jitter padding). Robustness to an adaptive adversary is
+        untested.
+  \item \textbf{Two botnet families only.} Novel malware with different
+        behaviour is what a supervised model will miss. The unsupervised
+        Isolation Forest partially addresses this but is weaker on subtle
+        attacks.
+  \item \textbf{Content-blind features.} Behavioural statistics abstract away
+        payload, so the detector can flag deviation from baseline but cannot by
+        itself say whether a high-volume flow is an attack or legitimate
+        streaming.
+  \item \textbf{Offline training.} An operational system needs streaming
+        feature extraction and incremental scoring, which the original paper
+        addresses but this study does not implement.
+\end{enumerate}
+
+% =====================================================================
+\section{Conclusion}
+% =====================================================================
+\textbf{Answer to the research question:}
+Yes --- with important caveats. Behavioural network-traffic features distinguish
+benign from botnet-infected IoT traffic almost perfectly on this benchmark:
+\textbf{XGBoost F1 = 1.0000 and ROC-AUC = 1.0000}, Random Forest F1 = 1.0000
+and Logistic Regression F1 = 0.9996, consistently across \textbf{all nine
+devices} (XGBoost F1 = 1.0000 on eight and 0.9999 on the Ecobee thermostat).
+
+The security conclusions are as important as the metric:
+
+\begin{enumerate}[itemsep=3pt]
+  \item Network-side detection is viable for devices that cannot protect
+        themselves --- no agent, no patch, no user action required.
+  \item \textbf{Floods are easy; scanning is the weak point --- and it is the
+        one that matters.} Supervised models caught 9 of 10 attack types at
+        1.0000 recall, but the Isolation Forest detected
+        \texttt{mirai\_scan} and \texttt{mirai\_syn} \textbf{0\%} of the time
+        and \texttt{gafgyt\_scan} at 2.3\%. Scanning is the propagation stage,
+        so those are the misses that let a botnet grow.
+  \item \textbf{The signal is volume and burstiness, not malware content.}
+        Infected devices move 100--300$\times$ more packets in the 10\,ms
+        window, and \texttt{HpHp\_L0.01\_radius} plus \texttt{HH\_L0.01\_pcc}
+        carry 87\% of XGBoost's gain. Task-oriented devices are predictable, so
+        the deviation is enormous rather than marginal.
+  \item \textbf{Accuracy is the wrong headline metric for security.} The Isolation
+        Forest's 84,437 false alerts/day and 7,562 missed attacks/day hide
+        behind a single accuracy figure, and Logistic Regression's 0.9992
+        accuracy conceals 4,553 false alerts/day. The error rates and their
+        asymmetric costs are what an operator actually experiences, while any
+        false negative leaves a device actively attacking from inside the
+        network.
+\end{enumerate}
+
+Future work should add chronological splitting, adversarial robustness
+testing, and a streaming evaluation harness to measure detection latency.
+
+% =====================================================================
+% \section{References}  -- rendered automatically by thebibliography below
+% =====================================================================
+\begin{thebibliography}{9}
+% =====================================================================
+\bibitem{kashif2020nbaiot}
+M.~Kashif. \emph{N-BaIoT Dataset to Detect IoT Botnet Attacks} [Data set].
+Kaggle, 2020. \url{https://www.kaggle.com/datasets/mkashifn/nbaiot-dataset}
+
+\bibitem{meidan2018nbaiot}
+Y.~Meidan, M.~Bohadana, Y.~Mathov, Y.~Mirsky, D.~Breitenbacher, A.~Shabtai,
+and Y.~Elovici. N-BaIoT: Network-based Detection of IoT Botnet Attacks Using
+Deep Autoencoders. \emph{arXiv:1805.03409}, 2018.
+
+\bibitem{uci442}
+UCI Machine Learning Repository. \emph{Detection of IoT Botnet Attacks N BaIoT}
+(Dataset 442). \url{https://archive.ics.uci.edu/dataset/442}
+
+\bibitem{kolias2017ddos}
+C.~Kolias, G.~Kambourakis, A.~Stavrou, and J.~Voas. DDoS in the IoT: Mirai
+and Other Botnets. \emph{Computer}, 50(7), 2017.
+
+\bibitem{liu2008isolation}
+F.~T.~Liu, K.~M.~Ting, and Z.-H.~Zhou. Isolation Forest. In \emph{Proc. IEEE
+ICDM}, 2008.
+
+\bibitem{breiman2001random}
+L.~Breiman. Random Forests. \emph{Machine Learning}, 45(1):5--32, 2001.
+
+\bibitem{pedregosa2011sklearn}
+F.~Pedregosa et al.\ Scikit-learn: Machine Learning in Python. \emph{JMLR},
+12:2825--2830, 2011.
+
+\bibitem{chen2017xgboost}
+T.~Chen and C.~Guestrin. XGBoost: A Scalable Tree Boosting System. In
+\emph{Proc. ACM SIGKDD}, 2017.
+
+\bibitem{lundberg2017shap}
+S.~M.~Lundberg and S.-I.~Lee. A Unified Approach to Interpreting Model
+Predictions. In \emph{NeurIPS}, 2017.
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,13 @@
+# N-BaIoT — Can Abnormal IoT Traffic Be Detected?
+# Core analysis environment (pre-installed on Google Colab except where noted)
+
+numpy>=1.23
+pandas>=1.5
+matplotlib>=3.6
+seaborn>=0.12
+scikit-learn>=1.2
+jinja2>=3.1          # required by pandas.DataFrame.to_latex() for report tables
+
+# Installed by the notebook's first cell if missing:
+xgboost>=1.7
+shap>=0.42

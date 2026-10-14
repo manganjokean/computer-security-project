@@ -1,0 +1,36 @@
+# --- Dataset (≈9 GB, not redistributable here) ---
+# Get it from Kaggle or the UCI mirror — see README.md "Step 0".
+data/
+
+# --- Backup / scratch copies ---
+*.bak
+*.bak2
+*~
+
+# --- Python / Jupyter ---
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# --- OS / editor noise ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+
+# --- LaTeX build artifacts ---
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.fls
+*.fdb_latexmk
+*.nav
+*.snm
+*.vrb
