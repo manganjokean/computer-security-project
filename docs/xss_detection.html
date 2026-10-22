@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XSS Payload Detection — Computer Security Project</title>
+<style>
+  :root { --ink:#16202c; --muted:#5b6b7c; --line:#e3e9f0; --accent:#0b6bcb; --bg:#fff; --soft:#f6f9fc; }
+  * { box-sizing:border-box; }
+  body { margin:0; color:var(--ink); background:var(--bg);
+         font:17px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .hero { background:linear-gradient(135deg,#0b2545 0%,#134074 55%,#1d5c9e 100%); color:#fff; padding:44px 0 0; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 22px; }
+  .eyebrow { margin:0; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:#9fc4ef; }
+  h1 { margin:.25em 0 .1em; font-size:clamp(28px,4.4vw,42px); line-height:1.15; }
+  .sub { margin:0 0 26px; color:#d6e6f8; font-size:18px; }
+  .tabs { display:flex; flex-wrap:wrap; gap:4px; margin:0; }
+  .tabs a { color:#cfe1f7; text-decoration:none; padding:11px 15px; font-size:15px;
+             border-bottom:3px solid transparent; }
+  .tabs a:hover { color:#fff; background:rgba(255,255,255,.08); }
+  .tabs a.active { color:#fff; border-bottom-color:#7fb6f0; font-weight:600; }
+  main { padding:34px 0 60px; }
+  h2 { margin-top:1.7em; padding-bottom:.25em; border-bottom:2px solid var(--line); font-size:26px; }
+  h3 { margin-top:1.5em; font-size:20px; }
+  a { color:var(--accent); }
+  code { background:var(--soft); border:1px solid var(--line); border-radius:4px;
+          padding:.1em .35em; font-size:.9em; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:8px; padding:14px 16px;
+         overflow-x:auto; }
+  pre code { background:none; border:0; padding:0; }
+  table { border-collapse:collapse; width:100%; margin:1.1em 0; font-size:15.5px; display:block;
+           overflow-x:auto; }
+  th,td { border:1px solid var(--line); padding:8px 11px; text-align:left; }
+  th { background:var(--soft); }
+  tr:nth-child(even) td { background:#fbfdff; }
+  blockquote { margin:1em 0; padding:.15em 1.1em; border-left:4px solid #b9d4f2; color:var(--muted);
+                background:var(--soft); }
+  hr { border:0; border-top:1px solid var(--line); margin:2.2em 0; }
+  footer { border-top:1px solid var(--line); padding:22px 0 40px; color:var(--muted); font-size:14px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; margin:1.2em 0 1.6em; }
+  .card { display:block; border:1px solid var(--line); border-radius:10px; padding:15px 16px;
+           text-decoration:none; color:var(--ink); background:#fff; }
+  .card:hover { border-color:#9ec6ee; box-shadow:0 4px 14px rgba(11,107,203,.10); }
+  .card b { color:var(--accent); display:block; margin-bottom:3px; }
+  .card span { color:var(--muted); font-size:14.5px; line-height:1.45; }
+  figure { margin:1.4em 0; }
+  figure img { width:100%; border:1px solid var(--line); border-radius:8px; }
+  figcaption { color:var(--muted); font-size:14px; margin-top:.5em; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Computer Security Project &middot; Assignment 6</p>
+    <h1>Can Obfuscated XSS Payloads Be Detected?</h1>
+    <p class="sub">Character-level deep learning vs TF-IDF baselines &middot; robustness against 7 obfuscation transforms</p>
+
+<nav class="tabs">
+  <a href="index.html">Overview</a>
+  <a href="notebook.html">Notebook &amp; results</a>
+  <a href="presentation.html">Presentation</a>
+  <a href="xss_detection.html" class="active">XSS detection</a>
+  <a href="https://github.com/manganjokean/computer-security-project/blob/main/report/report.tex">Report (LaTeX)</a>
+  <a href="https://github.com/manganjokean/computer-security-project/releases/tag/nbaiot-data">Dataset</a>
+  <a href="https://github.com/manganjokean/computer-security-project">GitHub</a>
+</nav>
+  </div>
+</header>
+<main class="wrap">
+
+<div class="cards">
+  <a class="card" href="https://github.com/manganjokean/computer-security-project/tree/main/xss_payload_detection"><b>Code &amp; full write-up &rarr;</b>
+    <span>Research question, method selection, repro steps and the complete src/ pipeline.</span></a>
+  <a class="card" href="https://github.com/manganjokean/computer-security-project/blob/main/xss_payload_detection/SECURITY_MAPPING.md"><b>Security mapping &rarr;</b>
+    <span>Security problem &rarr; security control &rarr; mitigation &rarr; security improvement, with measured numbers.</span></a>
+  <a class="card" href="https://github.com/manganjokean/computer-security-project/blob/main/xss_payload_detection/results/metrics.md"><b>Raw result tables &rarr;</b>
+    <span>Metrics, per-transform robustness, seed stability and the mitigation probe.</span></a>
+  <a class="card" href="https://huggingface.co/datasets/AmirAliGharesoufloo/XSS"><b>Dataset &rarr;</b>
+    <span>13,686 labeled HTML snippets (XSS vs benign) on Hugging Face &mdash; no login.</span></a>
+</div>
+
+<p><strong>Assignment 6 &mdash; Cross-Site Scripting (XSS) Security and matching a research problem to an AI method.</strong></p>
+<p>Untrusted web input can carry XSS payloads; attackers obfuscate them to evade
+keyword filters. This project asks whether a <strong>character-level TextCNN trained
+with obfuscation augmentation</strong> detects obfuscated payloads more reliably than
+strong TF-IDF + Logistic Regression baselines &mdash; measured on a clean test set
+<em>and</em> on adversarially transformed hard sets.</p>
+<hr />
+
+<h2>Research question</h2>
+<blockquote>
+<p>Can a character-level TextCNN trained with <em>obfuscation augmentation</em> detect
+obfuscated XSS payloads more reliably than TF-IDF + Logistic Regression
+baselines, without sacrificing performance on clean input?</p>
+</blockquote>
+<p><strong>Objective:</strong> improve <em>robustness</em> (recall on obfuscated payloads) and
+<em>false-positive safety</em> (FPR on entity-encoded benign HTML), not just clean-set
+accuracy &mdash; clean-set scores are already saturated on this dataset.</p>
+<hr />
+
+<h2>Dataset</h2>
+<table>
+<thead>
+<tr><th>Field</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Name</strong></td><td>XSS dataset (HTML snippets, binary label)</td></tr>
+<tr><td><strong>URL</strong></td><td><a href="https://huggingface.co/datasets/AmirAliGharesoufloo/XSS">https://huggingface.co/datasets/AmirAliGharesoufloo/XSS</a></td></tr>
+<tr><td><strong>Description</strong></td><td>13,686 labeled HTML fragments: XSS payloads with event handlers / script vectors vs benign Wikipedia-style HTML. Public, no login; downloaded automatically by <code>src/data_prep.py</code>.</td></tr>
+<tr><td><strong>Cleaning</strong></td><td>Whitespace-only snippets removed, then <strong>2,716 duplicate payloads dropped <em>before</em> splitting</strong> (13,570 &rarr; <strong>10,854</strong> unique rows) to prevent identical payloads leaking across train/test.</td></tr>
+<tr><td><strong>Balance</strong></td><td>7,322 XSS (67.5%) vs 3,532 benign (32.5%)</td></tr>
+<tr><td><strong>Splits</strong></td><td>Stratified 70/15/15 train/val/test, seed 42 &mdash; 7,597 / 1,628 / 1,629</td></tr>
+</tbody>
+</table>
+<hr />
+
+<h2>Methods &mdash; why each was chosen</h2>
+<table>
+<thead>
+<tr><th>Model</th><th>Role</th><th>Rationale</th></tr>
+</thead>
+<tbody>
+<tr><td>E0 Length-only LogReg</td><td>sanity baseline</td><td>exposes the dataset's length confound (benign &asymp; 160 chars vs XSS &asymp; 62)</td></tr>
+<tr><td>E1 Word TF-IDF + LogReg</td><td>classic baseline</td><td>standard text classification reference</td></tr>
+<tr><td>E2 Char n-gram TF-IDF + LogReg</td><td>strong baseline</td><td>characters are the natural unit for payloads; hard to beat</td></tr>
+<tr><td>E3 TextCNN</td><td>proposed architecture</td><td>multi-kernel convolutions learn local patterns (<code>&lt;script</code>, <code>onerror=</code>, <code>javascript:</code>) at several lengths; CPU-friendly</td></tr>
+<tr><td><strong>E4 TextCNN + augmentation</strong></td><td><strong>proposed improvement</strong></td><td>random obfuscation of <em>positive</em> training samples teaches invariance to the evasions the baselines fail on &mdash; a clean ablation against E3</td></tr>
+<tr><td>E5 BiLSTM (optional)</td><td>DL comparison</td><td>sequential model; runnable via <code>--include-bilstm</code></td></tr>
+</tbody>
+</table>
+<h3>Experimental design</h3>
+<ul>
+<li><strong>Tuning on validation only:</strong> <code>C</code> for the baselines is chosen on validation F1; TextCNN uses early stopping on validation F1 (patience 3, max 12 epochs). The test split is touched once.</li>
+<li><strong>Hard sets from the held-out test split:</strong> every XSS test payload &times; 7 obfuscation transforms (mixed case, HTML entities, URL-encoding, NUL bytes, comment splitting, whitespace, multi-stage <em>combined</em>) = <strong>7,693 obfuscated payloads</strong>, plus <strong>530 entity-encoded benign snippets</strong> as a false-positive probe.</li>
+<li><strong>Metrics:</strong> Accuracy, Precision, Recall, F1, PR-AUC, FPR &mdash; not accuracy alone. Obfuscated detection = fraction of obfuscated XSS payloads still flagged.</li>
+<li><strong>Seed stability:</strong> E3/E4 repeated over seeds 42, 43, 44.</li>
+<li><strong>CPU-only:</strong> sequences padded/truncated to 300 characters, batch 64, Adam; the full suite runs in minutes.</li>
+</ul>
+<hr />
+
+<h2>Results &mdash; clean held-out test set</h2>
+<table>
+<thead>
+<tr><th>Model</th><th>Acc</th><th>Prec</th><th>Recall</th><th>F1</th><th>PR-AUC</th><th>FPR</th></tr>
+</thead>
+<tbody>
+<tr><td>E0 Length-only LogReg</td><td>0.7581</td><td>0.7613</td><td>0.9345</td><td>0.8391</td><td>0.8345</td><td>0.6075</td></tr>
+<tr><td>E1 Word TF-IDF + LogReg</td><td>0.9982</td><td>0.9973</td><td>1.0000</td><td>0.9986</td><td>1.0000</td><td>0.0057</td></tr>
+<tr><td>E2 Char n-gram TF-IDF + LogReg</td><td>0.9994</td><td>1.0000</td><td>0.9991</td><td>0.9995</td><td>1.0000</td><td><strong>0.0000</strong></td></tr>
+<tr><td>E3 TextCNN</td><td>0.9982</td><td>1.0000</td><td>0.9973</td><td>0.9986</td><td>1.0000</td><td><strong>0.0000</strong></td></tr>
+<tr><td><strong>E4 TextCNN + augment</strong></td><td>0.9988</td><td>1.0000</td><td>0.9982</td><td>0.9991</td><td>1.0000</td><td><strong>0.0000</strong></td></tr>
+</tbody>
+</table>
+<p>The E0 row shows the length confound: predicting by length alone reaches 0.84 F1
+but flags <strong>61%</strong> of benign input &mdash; a reminder that this dataset's clean
+scores are easy, and that the interesting differences appear under obfuscation.</p>
+
+<h2>Results &mdash; obfuscated payloads (the real test)</h2>
+<table>
+<thead>
+<tr><th>Model</th><th>Obfuscated-XSS detection</th><th>FPR on encoded benign</th><th>Train time</th></tr>
+</thead>
+<tbody>
+<tr><td>E0 Length-only</td><td>0.7693</td><td>0.1283</td><td>&lt; 1 s</td></tr>
+<tr><td>E1 Word TF-IDF + LogReg</td><td>0.9457</td><td>0.0075</td><td>&lt; 1 s</td></tr>
+<tr><td>E2 Char TF-IDF + LogReg</td><td>0.9705</td><td>0.0057</td><td>3 s</td></tr>
+<tr><td>E3 TextCNN</td><td>0.9828</td><td>0.0075</td><td>56 s</td></tr>
+<tr><td><strong>E4 TextCNN + augment</strong></td><td><strong>0.9996</strong></td><td><strong>0.0906</strong></td><td>100 s</td></tr>
+</tbody>
+</table>
+<h3>Detection rate by obfuscation transform (E3 &rarr; E4)</h3>
+<table>
+<thead>
+<tr><th>Transform</th><th>E3 TextCNN</th><th>E4 + augment</th></tr>
+</thead>
+<tbody>
+<tr><td><code>combined</code> (2&ndash;3 chained)</td><td>0.9427</td><td><strong>1.0000</strong></td></tr>
+<tr><td><code>comment_split</code></td><td>0.9864</td><td><strong>1.0000</strong></td></tr>
+<tr><td><code>html_entity</code></td><td>0.9791</td><td><strong>1.0000</strong></td></tr>
+<tr><td><code>mixed_case</code></td><td>0.9973</td><td><strong>1.0000</strong></td></tr>
+<tr><td><code>null_bytes</code></td><td>0.9955</td><td>0.9982</td></tr>
+<tr><td><code>url_encode</code></td><td>0.9809</td><td><strong>1.0000</strong></td></tr>
+<tr><td><code>whitespace</code></td><td>0.9982</td><td>0.9991</td></tr>
+</tbody>
+</table>
+
+<h2>Seed stability (3 seeds)</h2>
+<table>
+<thead>
+<tr><th>Model</th><th>Clean F1</th><th>Obfuscated detection</th><th>FPR on encoded benign</th></tr>
+</thead>
+<tbody>
+<tr><td>E3 TextCNN</td><td>0.9991 &plusmn; 0.0005</td><td>0.9896 &plusmn; 0.0066</td><td>0.0088 &plusmn; 0.0022</td></tr>
+<tr><td><strong>E4 TextCNN + augment</strong></td><td>0.9988 &plusmn; 0.0005</td><td><strong>0.9995 &plusmn; 0.0001</strong></td><td><strong>0.0616 &plusmn; 0.0325</strong></td></tr>
+</tbody>
+</table>
+<p>Augmentation wins on <strong>every</strong> seed, is <em>less</em> variable, and leaves clean F1
+statistically tied &mdash; but it pays for it with a higher false-positive rate on
+entity-encoded benign HTML (see limitations).</p>
+
+<h2>Mitigation probe &mdash; NUL-byte input normalization</h2>
+<p>NUL-byte injection (<code>on\x00error=</code>) is a classic filter-evasion trick, so the
+probe strips NUL bytes from input before classification (inference only, no retraining):</p>
+<table>
+<thead>
+<tr><th>Input handling</th><th>E2 Char TF-IDF</th><th>E4 TextCNN + augment</th></tr>
+</thead>
+<tbody>
+<tr><td>raw</td><td>0.9991</td><td>0.9982</td></tr>
+<tr><td>NUL-stripped</td><td>0.9991</td><td>0.9982</td></tr>
+</tbody>
+</table>
+<p>Detection was already &asymp; 1.0 and stripping changes nothing: for these models the
+robustness comes from <strong>augmentation</strong>, not normalization. The probe also caught
+a pipeline bug worth documenting &mdash; an early version stored the hard sets as CSV,
+where <strong>pandas silently truncates strings at NUL bytes</strong> (<code>ab\x00cd</code> &rarr;
+<code>ab</code>), understating robustness by ~17 points. JSON storage fixed the measurement.</p>
+<hr />
+
+<h2>Figures</h2>
+<figure>
+  <img src="assets/xss/fig_clean_metrics.png" alt="Bar chart comparing F1, PR-AUC, recall and FPR of all five models on the clean test set">
+  <figcaption>Clean test set: all serious models saturate; only the length-only baseline separates.</figcaption>
+</figure>
+<figure>
+  <img src="assets/xss/fig_robustness.png" alt="Bar chart of detection rate per obfuscation transform for the TextCNN models">
+  <figcaption>Robustness: detection rate per obfuscation transform. E4 (augmented) reaches 1.00 on six of seven transforms; the biggest jump is multi-stage <code>combined</code> obfuscation.</figcaption>
+</figure>
+<figure>
+  <img src="assets/xss/fig_training_curves.png" alt="Training loss and validation F1 curves for the TextCNN with and without augmentation">
+  <figcaption>Training dynamics: loss and validation F1 per epoch (early stopping on validation F1).</figcaption>
+</figure>
+<hr />
+
+<h2>Limitations</h2>
+<ol>
+<li><strong>Clean-set scores are saturated</strong> (~0.999 for every serious model); this dataset separates easily, so meaningful differences appear only under obfuscation. Real request logs are noisier &mdash; replicate before operational conclusions.</li>
+<li><strong>Trade-off:</strong> augmentation raises FPR on <em>entity-encoded benign HTML</em> (0.009 &rarr; 0.062 mean). An augmented model is more sensitive to entity-encoded content &mdash; exactly what escaped user text looks like. Deployment needs threshold tuning or encoding-aware validation, not one global threshold.</li>
+<li><strong>Measurement integrity matters:</strong> the CSV/NUL truncation bug above shows a robustness claim is only as trustworthy as the pipeline measuring it.</li>
+<li>Single dataset with synthetic benign/attack provenance; obfuscation transforms approximate, but do not exhaust, real attacker evasion.</li>
+</ol>
+<hr />
+
+<h2>Reproduce</h2>
+<pre><code class="language-bash">pip install -r requirements.txt
+python src/data_prep.py                  # download + clean + split (auto-downloads CSV)
+python src/run_experiments.py            # E0-E4, tables, figures (~3 min, CPU)
+python src/run_experiments.py --seeds 42,43,44   # seed-stability repeat (~9 min)
+python src/predict.py "&lt;script&gt;alert(1)&lt;/script&gt;"   # try your own payloads
+</code></pre>
+<p>Full instructions: <a href="https://github.com/manganjokean/computer-security-project/tree/main/xss_payload_detection"><code>xss_payload_detection/README.md</code></a>
+&middot; security chain: <a href="https://github.com/manganjokean/computer-security-project/blob/main/xss_payload_detection/SECURITY_MAPPING.md"><code>SECURITY_MAPPING.md</code></a></p>
+
+</main>
+<footer><div class="wrap">
+  Assignment 6 &mdash; Cross-Site Scripting (XSS) security &middot;
+  Dataset: <a href="https://huggingface.co/datasets/AmirAliGharesoufloo/XSS">XSS dataset</a>, Hugging Face &middot;
+  Code and full results: this repository&rsquo;s <a href="https://github.com/manganjokean/computer-security-project/tree/main/xss_payload_detection">xss_payload_detection/</a>.
+</div></footer>
+</body>
+</html>
