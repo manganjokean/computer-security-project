@@ -1,0 +1,7 @@
+# regenerable artifacts
+results/models/
+
+# scratch
+__pycache__/
+*.pyc
+

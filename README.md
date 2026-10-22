@@ -6,6 +6,15 @@ Computer Security Project — data-driven security analysis of IoT botnet traffi
 
 ---
 
+## Projects in this repository
+
+| Project | Folder | Question |
+|---|---|---|
+| **IoT botnet detection** (this README) | repo root | Can behavioral network-traffic features distinguish botnet-infected IoT devices from benign traffic? |
+| **XSS payload detection** | [`xss_payload_detection/`](xss_payload_detection/) | Can a character-level TextCNN with obfuscation augmentation detect obfuscated XSS payloads more reliably than TF-IDF baselines? |
+
+---
+
 ## Dataset
 
 | Field | Value |
@@ -38,8 +47,12 @@ Computer Security Project/
 ├── data/                       # N-BaIoT CSVs (not in git — download from Releases)
 ├── report/
 │   └── report.tex              # Deliverable C — final report (LaTeX, for Overleaf)
-└── presentation/
-    └── presentation_outline.md # Deliverable D — 10–15 min talk outline + Q&A
+├── presentation/
+│   └── presentation_outline.md # Deliverable D — 10–15 min talk outline + Q&A
+└── xss_payload_detection/      # Assignment 6 — XSS detection with deep learning
+    ├── README.md               # research question, method, results, repro steps
+    ├── SECURITY_MAPPING.md     # security problem → control → mitigation → improvement
+    └── src/                    # data prep, obfuscation transforms, baselines, TextCNN
 ```
 
 The final report is written in LaTeX on Overleaf; the notebook exports
