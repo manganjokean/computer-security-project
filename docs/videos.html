@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI video compilation — Computer Security Project</title>
+<style>
+  :root { --ink:#16202c; --muted:#5b6b7c; --line:#e3e9f0; --accent:#0b6bcb; --bg:#fff; --soft:#f6f9fc; }
+  * { box-sizing:border-box; }
+  body { margin:0; color:var(--ink); background:var(--bg);
+         font:17px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .hero { background:linear-gradient(135deg,#0b2545 0%,#134074 55%,#1d5c9e 100%); color:#fff; padding:44px 0 0; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 22px; }
+  .eyebrow { margin:0; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:#9fc4ef; }
+  h1 { margin:.25em 0 .1em; font-size:clamp(28px,4.4vw,42px); line-height:1.15; }
+  .sub { margin:0 0 26px; color:#d6e6f8; font-size:18px; }
+  .tabs { display:flex; flex-wrap:wrap; gap:4px; margin:0; }
+  .tabs a { color:#cfe1f7; text-decoration:none; padding:11px 15px; font-size:15px;
+             border-bottom:3px solid transparent; }
+  .tabs a:hover { color:#fff; background:rgba(255,255,255,.08); }
+  .tabs a.active { color:#fff; border-bottom-color:#7fb6f0; font-weight:600; }
+  main { padding:34px 0 60px; }
+  h2 { margin-top:1.7em; padding-bottom:.25em; border-bottom:2px solid var(--line); font-size:26px; }
+  h3 { margin-top:1.5em; font-size:20px; }
+  a { color:var(--accent); }
+  code { background:var(--soft); border:1px solid var(--line); border-radius:4px;
+          padding:.1em .35em; font-size:.9em; }
+  table { border-collapse:collapse; width:100%; margin:1.1em 0; font-size:15.5px; display:block;
+          overflow-x:auto; }
+  th,td { border:1px solid var(--line); padding:8px 11px; text-align:left; }
+  th { background:var(--soft); }
+  tr:nth-child(even) td { background:#fbfdff; }
+  blockquote { margin:1em 0; padding:.15em 1.1em; border-left:4px solid #b9d4f2; color:var(--muted);
+               background:var(--soft); }
+  hr { border:0; border-top:1px solid var(--line); margin:2.2em 0; }
+  footer { border-top:1px solid var(--line); padding:22px 0 40px; color:var(--muted); font-size:14px; }
+  .player { width:100%; border:1px solid var(--line); border-radius:10px; background:#000;
+            display:block; margin:1.2em 0 .6em; }
+  .player-meta { color:var(--muted); font-size:14.5px; margin:0 0 1.6em; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Computer Security Project</p>
+    <h1>Can Abnormal IoT Traffic Be Detected?</h1>
+    <p class="sub">Behavioral detection of botnet-infected IoT devices using machine learning &middot; N-BaIoT dataset</p>
+    
+<nav class="tabs">
+  <a href="index.html">Overview</a>
+  <a href="notebook.html">Notebook &amp; results</a>
+  <a href="presentation.html">Presentation</a>
+  <a href="xss_detection.html">XSS detection</a>
+  <a href="videos.html" class="active">Videos</a>
+  <a href="https://github.com/manganjokean/computer-security-project/blob/main/report/report.tex">Report (LaTeX)</a>
+  <a href="https://github.com/manganjokean/computer-security-project/releases/tag/nbaiot-data">Dataset</a>
+  <a href="https://github.com/manganjokean/computer-security-project">GitHub</a>
+</nav>
+  </div>
+</header>
+<main class="wrap">
+
+<h2>AI video compilation</h2>
+
+<p>
+  Six AI-generated clips joined end-to-end into a single <b>49.75-second</b> video,
+  played back in the order they were created &mdash; from the martial-artist duel that opens
+  the sequence to the two figures landing on the bridge that closes it. Nothing was trimmed;
+  each clip is included in full.
+</p>
+
+<video class="player" controls preload="metadata" poster="videos/poster.jpg">
+  <source src="videos/ai_video_compilation.mp4" type="video/mp4">
+  Your browser does not support the video tag &mdash;
+  <a href="videos/ai_video_compilation.mp4">download the MP4</a> instead.
+</video>
+<p class="player-meta">
+  <a href="videos/ai_video_compilation.mp4" download>Download the MP4</a> (45&nbsp;MB) &middot;
+  1280&times;720 &middot; 24&nbsp;fps &middot; H.264 + AAC
+</p>
+
+<h2>Chapters</h2>
+
+<table>
+  <thead>
+    <tr><th>#</th><th>Clip</th><th>Starts</th><th>Length</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>1</td><td>Martial artist fights mech robot</td><td>0:00</td><td>10.0&nbsp;s</td></tr>
+    <tr><td>2</td><td>Blue speedster running into space</td><td>0:10</td><td>8.0&nbsp;s</td></tr>
+    <tr><td>3</td><td>Speedster and martial artist figures</td><td>0:18</td><td>7.9&nbsp;s</td></tr>
+    <tr><td>4</td><td>Cosmic battle in asteroid field</td><td>0:26</td><td>7.9&nbsp;s</td></tr>
+    <tr><td>5</td><td>Fighters battling giant mech robot</td><td>0:34</td><td>7.9&nbsp;s</td></tr>
+    <tr><td>6</td><td>Two figures landing on bridge</td><td>0:42</td><td>7.9&nbsp;s</td></tr>
+  </tbody>
+</table>
+
+<h2>Details</h2>
+
+<table>
+  <tbody>
+    <tr><th><b>Total duration</b></th><td>49.75&nbsp;s (1,192 frames)</td></tr>
+    <tr><th><b>Resolution</b></th><td>1280&times;720 (720p) &middot; 24&nbsp;fps &middot; progressive scan</td></tr>
+    <tr><th><b>Video codec</b></th><td>H.264 / AVC, yuv420p, CRF&nbsp;18 (visually lossless)</td></tr>
+    <tr><th><b>Audio codec</b></th><td>AAC, 48&nbsp;kHz, stereo, 192&nbsp;kbps</td></tr>
+    <tr><th><b>Container</b></th><td>MP4 with <code>faststart</code> (streams while it downloads)</td></tr>
+    <tr><th><b>Source clips</b></th><td>Six 7&ndash;10&nbsp;s AI-generated MP4s, all 720p/24&nbsp;fps, joined with FFmpeg</td></tr>
+  </tbody>
+</table>
+
+<blockquote>
+  The clips were concatenated in chronological order of creation. Because every source clip
+  shared identical codec settings, the join is a single re-encode pass &mdash; no clip was cut,
+  slowed, or re-timed, and the original files remain untouched.
+</blockquote>
+
+</main>
+<footer><div class="wrap">
+  Dataset: Kashif, M. (2020). <i>N-BaIoT Dataset to Detect IoT Botnet Attacks</i>, Kaggle &middot;
+  Meidan et al. (2018), arXiv:1805.03409 &middot;
+  Built from this repository&rsquo;s <a href="https://github.com/manganjokean/computer-security-project">README</a>.
+</div></footer>
+</body>
+</html>
