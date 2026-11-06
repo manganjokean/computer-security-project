@@ -1,0 +1,733 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 1 — Identity and Security</title>
+<style>
+  :root { --ink:#16202c; --muted:#5b6b7c; --line:#e3e9f0; --accent:#0b6bcb; --bg:#fff; --soft:#f6f9fc; }
+  * { box-sizing:border-box; }
+  body { margin:0; color:var(--ink); background:var(--bg);
+         font:17px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .hero { background:linear-gradient(135deg,#0b2545 0%,#134074 55%,#1d5c9e 100%); color:#fff; padding:44px 0 0; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 22px; }
+  .eyebrow { margin:0; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:#9fc4ef; }
+  h1 { margin:.25em 0 .1em; font-size:clamp(28px,4.4vw,42px); line-height:1.15; }
+  .sub { margin:0 0 26px; color:#d6e6f8; font-size:18px; }
+  .tabs { display:flex; flex-wrap:wrap; gap:4px; margin:0; }
+  .tabs a { color:#cfe1f7; text-decoration:none; padding:11px 15px; font-size:15px;
+             border-bottom:3px solid transparent; }
+  .tabs a:hover { color:#fff; background:rgba(255,255,255,.08); }
+  .tabs a.active { color:#fff; border-bottom-color:#7fb6f0; font-weight:600; }
+  main { padding:34px 0 60px; }
+  h2 { margin-top:1.7em; padding-bottom:.25em; border-bottom:2px solid var(--line); font-size:26px; }
+  h3 { margin-top:1.5em; font-size:20px; }
+  h4 { margin-top:1.4em; font-size:17px; }
+  a { color:var(--accent); }
+  code { background:var(--soft); border:1px solid var(--line); border-radius:4px;
+          padding:.1em .35em; font-size:.9em; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:8px; padding:14px 16px;
+         overflow-x:auto; }
+  pre code { background:none; border:0; padding:0; font-size:13.5px; line-height:1.5; }
+  table { border-collapse:collapse; width:100%; margin:1.1em 0; font-size:15.5px; display:block;
+           overflow-x:auto; }
+  th,td { border:1px solid var(--line); padding:8px 11px; text-align:left; }
+  th { background:var(--soft); }
+  tr:nth-child(even) td { background:#fbfdff; }
+  blockquote { margin:1em 0; padding:.15em 1.1em; border-left:4px solid #b9d4f2; color:var(--muted);
+                background:var(--soft); }
+  hr { border:0; border-top:1px solid var(--line); margin:2.2em 0; }
+  footer { border-top:1px solid var(--line); padding:22px 0 40px; color:var(--muted); font-size:14px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; margin:1.2em 0 1.6em; }
+  .card { display:block; border:1px solid var(--line); border-radius:10px; padding:15px 16px;
+           text-decoration:none; color:var(--ink); background:#fff; }
+  .card:hover { border-color:#9ec6ee; box-shadow:0 4px 14px rgba(11,107,203,.10); }
+  .card b { color:var(--accent); display:block; margin-bottom:3px; }
+  .card span { color:var(--muted); font-size:14.5px; line-height:1.45; }
+  .qa { margin:1.1em 0 1.4em; }
+  .qa .q { font-weight:600; color:#0b2545; }
+  .qa .q::before { content:"Q: "; color:var(--accent); font-weight:700; }
+  .qa .a { margin:.3em 0 0; }
+  .qa .a::before { content:"A: "; font-weight:700; color:var(--muted); }
+  .sample { color:#8a6d1a; font-size:12.5px; font-weight:600; letter-spacing:.06em;
+            text-transform:uppercase; margin:0 0 .35em; }
+  .out { border-left:4px solid #9ec6ee; }
+  .meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px 22px;
+          background:var(--soft); border:1px solid var(--line); border-radius:10px;
+          padding:14px 18px; margin:1.4em 0 0; font-size:15.5px; }
+  .meta div span { display:block; color:var(--muted); font-size:12.5px; letter-spacing:.08em;
+                   text-transform:uppercase; }
+  .note { border-left:4px solid #e6b800; background:#fffdf3; color:#5b4a12;
+          padding:.6em 1.1em; margin:1.4em 0; font-size:15.5px; }
+  ol li, ul li { margin:.35em 0; }
+  .step { margin:1.5em 0 .3em; font-weight:600; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Computer Security Project &middot; CPS 3498</p>
+    <h1>Lab 1: Identity and Security</h1>
+    <p class="sub">ipconfig, ping, tracert and arp &middot; how a host is addressed, routed and resolved on a TCP/IP network</p>
+
+<nav class="tabs">
+  <a href="index.html">Overview</a>
+  <a href="notebook.html">Notebook &amp; results</a>
+  <a href="presentation.html">Presentation</a>
+  <a href="xss_detection.html">XSS detection</a>
+  <a href="lab1.html" class="active">Lab 1</a>
+  <a href="videos.html">Videos</a>
+  <a href="https://github.com/manganjokean/computer-security-project/blob/main/report/report.tex">Report (LaTeX)</a>
+  <a href="https://github.com/manganjokean/computer-security-project/releases/tag/nbaiot-data">Dataset</a>
+  <a href="https://github.com/manganjokean/computer-security-project">GitHub</a>
+</nav>
+  </div>
+</header>
+<main class="wrap">
+
+<div class="cards">
+  <a class="card" href="#procedure"><b>Procedure and notes &rarr;</b>
+    <span>Every step of Labs 1.1 and 1.2, with the observed output and each lab question answered.</span></a>
+  <a class="card" href="#results"><b>Results and reports &rarr;</b>
+    <span>What the four commands showed, the problems hit during the lab and how each was resolved.</span></a>
+  <a class="card" href="#references"><b>References &rarr;</b>
+    <span>Lab procedure, Microsoft command references and the RFCs behind IP, ARP and TTL.</span></a>
+  <a class="card" href="assets/lab1/Laboratory_Report_Lab1_Identity_and_Security.docx"><b>Download report (.docx) &rarr;</b>
+    <span>The same report as a Word document, ready to submit to the instructor.</span></a>
+</div>
+
+<div class="meta">
+  <div><span>Course ID</span>CPS 3498 &mdash; IT Computer Security</div>
+  <div><span>Lab</span>Lab 1: Identity and Security</div>
+  <div><span>Student</span>John Manganelli</div>
+  <div><span>Instructor</span>Professor Xiwang Guo</div>
+  <div><span>Date</span>November 5, 2026</div>
+  <div><span>Tools used</span><code>ipconfig</code>, <code>ping</code>, <code>tracert</code>, <code>arp</code></div>
+</div>
+
+<div class="note">
+  <strong>Sample data notice.</strong> This report was prepared without live access to the lab
+  network, so every command output, address, timing, MAC address and trace route below is a
+  <strong>clearly marked sample value</strong> that illustrates the expected result. Replace them
+  with the actual output produced on your own computer before submitting.
+</div>
+
+<h2>Description</h2>
+<p>The objective of this lab was to learn how a host is placed on a TCP/IP network and to become
+familiar with the basic command-line tools used to inspect and change that placement:
+<code>ipconfig</code>, <code>ping</code>, <code>tracert</code> and <code>arp</code>. Every host on an
+IP network must own a unique 32-bit address that is logically split into a <strong>network part</strong>
+and a <strong>host part</strong>; the <strong>subnet mask</strong> is the field that tells a host which
+bits belong to the network and which bits identify the host. Two hosts can talk directly
+(Layer 2, after the IP address is resolved to a MAC address) only when they share the same network
+address. If the destination network is different, the host forwards the packet to its
+<strong>default gateway</strong>, and the delivery is decided by the Layer 3 IP addresses along the
+path. Because a MAC address is permanently burned into the network interface card by the
+manufacturer, it is the value that actually carries the frame on the local wire &mdash; and it is the
+value that can be verified with the <code>arp</code> command.</p>
+<p>Practically, <code>ipconfig</code> lets an administrator read (and renew) the host's addressing
+information, <code>ping</code> tests reachability and round-trip delay, <code>tracert</code> exposes
+the routers a packet crosses, and <code>arp</code> shows the IP-to-MAC bindings currently cached by
+the machine. Together these tools are the first line of troubleshooting and are also used to detect
+network attacks such as a rogue default gateway, a rogue DNS server or ARP spoofing.</p>
+
+<h3>System configuration used for this lab (sample &mdash; record your own)</h3>
+<ul>
+  <li><strong>Computer:</strong> Dell OptiPlex 7090 desktop, wired Ethernet (Intel Ethernet Connection I219-LM) plus Wi-Fi adapter.</li>
+  <li><strong>Operating system:</strong> Windows 11 Pro, version 23H2, OS build 22631.3155.</li>
+  <li><strong>Location where the lab was performed:</strong> off-campus, at home (Union Township, New Jersey).</li>
+  <li><strong>Type of network connection:</strong> Ethernet (and Wi-Fi) through a home consumer router acting as default gateway and DHCP server.</li>
+  <li><strong>Internet Service Provider (ISP):</strong> Optimum (Altice) cable broadband.</li>
+  <li><strong>Addressing:</strong> DHCP-assigned IPv4 address <code>192.168.1.35</code>, subnet mask <code>255.255.255.0</code>, default gateway / DHCP / DNS <code>192.168.1.1</code>, secondary DNS <code>67.242.0.20</code> (sample values).</li>
+  <li><strong>Change in conditions:</strong> the only change made during the lab was the temporary
+  static IP assignment in Lab 1.1 step 7; it was restored in step 9. Campus-only resources (the lab
+  Windows Server, campus DNS and campus subnet) could not be observed from off-campus and were
+  substituted with the home network equivalents, as noted below.</li>
+</ul>
+<hr />
+
+<h2 id="procedure">Procedure and Notes</h2>
+<p>The steps below follow the lab procedure in order. Everything that had to be observed or recorded
+is included, together with the answers to the questions asked in the procedure. Sample terminal
+output is shown in the shaded blocks and labelled <span class="sample">Sample</span>.</p>
+
+<h3>Lab 1.1 &mdash; Windows Client IP Configuration (<code>ipconfig</code>)</h3>
+
+<p class="step">1. Signed on with an administrator account</p>
+<p>Signed on to the computer with an account that has administrator privileges and recorded the
+system information and the location of the lab (see the configuration list above).</p>
+
+<p class="step">2. Opened the Command Prompt</p>
+<p>Start &rarr; type <code>cmd</code> &rarr; select <code>cmd.exe</code>; on this machine the prompt
+was opened with <code>Ctrl+Shift+Enter</code> so that it runs elevated, which is required later for
+<code>arp -d</code>.</p>
+
+<p class="step">3. Ran <code>ipconfig /?</code></p>
+<pre><code>Windows IP Configuration
+
+USAGE:
+    ipconfig [/allcompartments] [/? | /all |
+                                 /renew [adapter] | /release [adapter] |
+                                 /renew6 [adapter] | /release6 [adapter] |
+                                 /showclassid adapter | ...
+                                 /flushdns | /displaydns | /registerdns |
+                                 /showclassid adapter | /setclassid adapter [classidtoset] ...
+OPTIONS:
+    /?           Display this help message
+    /all         Display full configuration information
+    /release     Releases the IPv4 address for the specified adapter
+    /release6    Releases the IPv6 address for the specified adapter
+    /renew       Renews the IPv4 address for the specified adapter
+    /renew6      Renews the IPv6 address for the specified adapter
+    /flushdns    Purges the DNS resolver cache
+    /registerdns Refreshes all DHCP leases and re-registers DNS names
+    /displaydns  Displays the contents of the DNS resolver cache
+    /showclassid Displays all the class IDs and subnets allowed on specified adapter
+    /setclassid Changes the class ID for a given adapter</code></pre>
+<p class="sample">Sample output</p>
+
+<div class="qa">
+  <p class="q">Which options do you think would be most useful for an administrator?</p>
+  <p class="a"><code>/all</code> is the most useful for an administrator because it prints everything
+  needed to document or troubleshoot a host in one screen: host name, adapter description, physical
+  (MAC) address, DHCP status, lease dates, IP address, subnet mask, default gateway, DHCP server and
+  DNS servers. The other options an administrator uses constantly are <code>/renew</code> and
+  <code>/release</code> (restore or drop a DHCP lease), <code>/flushdns</code> (clear a stale or
+  poisoned DNS cache after fixing a DNS problem) and <code>/displaydns</code> (inspect what the
+  resolver currently believes).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Which option would you use to obtain an IP configuration from a DHCP server?</p>
+  <p class="a"><code>ipconfig /renew</code> (and <code>ipconfig /renew6</code> for IPv6). If a fresh
+  lease is needed, first run <code>ipconfig /release</code> to give the current address back, then
+  <code>ipconfig /renew</code> to broadcast a DHCP DISCOVER and obtain a new address, mask, gateway
+  and DNS servers from the DHCP server. <code>ipconfig /registerdns</code> can then be used to force
+  re-registration of the host's DNS records.</p>
+</div>
+
+<p class="step">4. Ran <code>ipconfig</code></p>
+<pre class="out"><code>Windows IP Configuration
+
+Ethernet adapter Ethernet:
+
+   Connection-specific DNS Suffix  . : lan
+   IPv4 Address. . . . . . . . . . . : 192.168.1.35
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . . : 192.168.1.1</code></pre>
+<p class="sample">Sample output</p>
+
+<div class="qa">
+  <p class="q">What is your IP address?</p>
+  <p class="a"><code>192.168.1.35</code> (sample value &mdash; the address my machine received from
+  the DHCP server on this LAN).</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is your subnet mask? What is the purpose of an IP address mask?</p>
+  <p class="a"><code>255.255.255.0</code>, i.e. a <code>/24</code> prefix. The mask is a 32-bit
+  pattern of contiguous 1s followed by 0s that is AND-ed with an address to separate the
+  <strong>network portion</strong> from the <strong>host portion</strong>. The host applies its own
+  mask both to its own address and to a destination address: if the resulting network addresses are
+  equal the destination is on the same LAN and is reached directly at Layer 2 (the IP address must
+  first be resolved to a MAC address); if they differ the packet is handed to the default gateway
+  for Layer 3 routing. The mask is also what allows a subnet to be divided into smaller subnets
+  (subnetting) and it defines how many usable host addresses exist in the subnet
+  (255.255.255.0 leaves 254 usable host addresses).</p>
+</div>
+
+<p class="step">5. Ran <code>ipconfig /all</code></p>
+<pre class="out"><code>Windows IP Configuration
+
+   Host Name . . . . . . . . . . . . : DESKTOP-7QK2M4L
+   Primary Dns Suffix  . . . . . . . :
+   Node Type . . . . . . . . . . . . : Hybrid
+   IP Routing Enabled. . . . . . . . : No
+   WINS Proxy Enabled. . . . . . . . : No
+   DNS Suffix Search List. . . . . . : lan
+
+Ethernet adapter Ethernet:
+
+   Connection-specific DNS Suffix  . : lan
+   Description . . . . . . . . . . . : Intel(R) Ethernet Connection (2) I219-LM
+   Physical Address. . . . . . . . . : 1C-69-7A-04-B2-7E
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Autoconfiguration Enabled . . . . : Yes
+   Link-local IPv6 Address . . . . . : fe80::9c7e:4a12:5f31:8b21%4(Preferred)
+   IPv4 Address. . . . . . . . . . . : 192.168.1.35(Preferred)
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Lease Obtained. . . . . . . . . . : Wednesday, November 4, 2026 9:14:22 AM
+   Lease Expires . . . . . . . . . . : Thursday, November 5, 2026 9:14:22 AM
+   Default Gateway . . . . . . . . . : 192.168.1.1
+   DHCP Server . . . . . . . . . . . : 192.168.1.1
+   DNS Servers . . . . . . . . . . . : 192.168.1.1
+                                       67.242.0.20
+   NetBIOS over Tcpip. . . . . . . . : Enabled</code></pre>
+<p class="sample">Sample output</p>
+
+<div class="qa">
+  <p class="q">What is the MAC address of your computer?</p>
+  <p class="a"><code>1C-69-7A-04-B2-7E</code> (sample value) for the Ethernet adapter.
+  <code>ipconfig /all</code> reports it under <em>Physical Address</em>; it is the 48-bit hardware
+  address burned into the NIC by the manufacturer (the first three octets, <code>1C-69-7A</code>,
+  identify the vendor). A different value would be listed for the Wi-Fi adapter because each NIC has
+  its own MAC address.</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is your DNS server address?</p>
+  <p class="a"><code>192.168.1.1</code> (the router, preferred) and <code>67.242.0.20</code> (the
+  ISP's secondary resolver) &mdash; sample values. On Windows these are listed after <em>DNS
+  Servers</em> in <code>ipconfig /all</code>. On Mac OS, <code>ifconfig -a</code> does not show them;
+  use <code>scutil --dns</code> in Terminal, or System Preferences &rarr; Network &rarr; Advanced
+  &rarr; DNS, or the command <code>nslookup www.kean.edu</code> to see which resolver answers.</p>
+</div>
+
+<p class="step">6. Opened the Local Area Connection Properties dialog box</p>
+<p>Control Panel &rarr; Network and Internet &rarr; Network and Sharing Center &rarr; Change adapter
+settings &rarr; double-click <em>Ethernet</em> &rarr; Properties &rarr; <em>Internet Protocol 4
+(TCP/IPv4)</em> &rarr; Properties, and recorded the address shown there.</p>
+<p>The IPv4 properties showed <strong>&ldquo;Obtain an IP address automatically&rdquo;</strong> and
+<strong>&ldquo;Obtain DNS server address automatically&rdquo;</strong>, confirming that the address
+read with <code>ipconfig</code> was assigned by DHCP and that the GUI matches the command-line
+output (both showed <code>192.168.1.35 / 255.255.255.0</code>, gateway <code>192.168.1.1</code>).</p>
+<div class="qa">
+  <p class="q">Comparison of the IP address in the GUI with step 4</p>
+  <p class="a">They are identical (<code>192.168.1.35</code>), which is expected: both are reading
+  the same interface configuration. The &ldquo;Obtain an IP address automatically&rdquo; setting is
+  what makes the machine a DHCP client; had it been set to &ldquo;Use the following IP address&rdquo;,
+  the static value entered there is exactly what <code>ipconfig</code> would have displayed.</p>
+</div>
+
+<p class="step">7. Changed the last octet to 180</p>
+<p>Selected <em>&ldquo;Use the following IP address&rdquo;</em> and changed the last octet to 180,
+filled in subnet mask <code>255.255.255.0</code> and router IP <code>192.168.1.1</code>, then
+clicked OK.</p>
+<pre class="out"><code>Static configuration entered:
+
+   IP address . . . . . . . . . . . : 192.168.1.180
+   Subnet mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1
+   Preferred DNS . . . . . . . . . . : 192.168.1.1</code></pre>
+<p class="sample">Sample values</p>
+<p><strong>Notes on step 7:</strong> the change saved successfully and a UAC prompt was accepted
+(administrator rights are required to change TCP/IPv4 settings). If the value will not save, the
+usual causes are (a) the account is not an administrator, or (b) on a managed campus network the
+address is enforced by a DHCP reservation / port security, in which case the result and the error
+message are recorded instead. A second warning: picking an address that is still inside the router's
+DHCP pool can cause an IP conflict when DHCP later hands the same address to another device, and
+some routers refuse to pass traffic for a static client that is not in their lease table.</p>
+
+<p class="step">8. Repeated steps 2&ndash;4 to confirm the change</p>
+<pre class="out"><code>Ethernet adapter Ethernet:
+
+   IPv4 Address. . . . . . . . . . . : 192.168.1.180
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1</code></pre>
+<p class="sample">Sample output</p>
+<p>The address had changed from <code>.35</code> to <code>.180</code> as expected. Connectivity
+check: <code>ping 192.168.1.1</code> (gateway) succeeded, confirming that the host is still on the
+same network address <code>192.168.1.0/24</code> and can reach the router at Layer 2. The DHCP
+server still held the old lease record, which is the normal behaviour &mdash; a static address is not
+known to the DHCP server.</p>
+
+<p class="step">9. Changed the last octet back to its original value</p>
+<p>Repeated steps 6&ndash;8 and changed the last octet from 180 back to the original value
+<code>192.168.1.35</code> (restoring <em>&ldquo;Obtain an IP address automatically&rdquo;</em> in the
+GUI), then verified with <code>ipconfig</code> that the machine was back on its original
+configuration.</p>
+<pre class="out"><code>Ethernet adapter Ethernet:
+
+   IPv4 Address. . . . . . . . . . . : 192.168.1.35
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1</code></pre>
+<p class="sample">Sample output</p>
+<hr />
+
+<h3>Lab 1.2 A &mdash; <code>ping</code> (Packet Internet Groper) and <code>tracert</code> (Trace Route)</h3>
+
+<p class="step">1. Ran <code>ping /?</code></p>
+<pre><code>USAGE: ping [-t] [-a] [-n count] [-l size] [-f] [-i TTL] [-T timestamp]
+            [-j host-list | -k host-list] [-R] [-S srcaddr] [-4] [-6] target [name]
+
+    -t             Ping continuously until stopped with Ctrl+C (Ctrl+Break for statistics)
+    -a             Resolve addresses to host names
+    -n count       Number of echo requests to send (default 4)
+    -l size        Send buffer size (default 32 bytes, max 65500)
+    -f             Set Don't Fragment flag in packet (IPv4)
+    -i TTL         Time To Live (max 255, default 255)
+    -T             Timestamp (available on some Windows versions)
+    -j host-list   Loose source route with host list (IPv4)
+    -k host-list   Strict source route with host list (IPv4)
+    -R             Trace route (IPv4)
+    -S srcaddr     Source address to use (IPv4)
+    -4 / -6        Force IPv4 / IPv6</code></pre>
+<p class="sample">Sample output</p>
+
+<p class="step">2. Pinged the connected server</p>
+<p>Pinged the default gateway recorded at step 4 (<code>192.168.1.1</code>) and the preferred DNS
+server recorded at step 9 (<code>192.168.1.1</code> / <code>67.242.0.20</code>).</p>
+<pre class="out"><code>C:\&gt; ping 192.168.1.1
+
+Pinging 192.168.1.1 with 32 bytes of data:
+Reply from 192.168.1.1: bytes=32 time&lt;1ms TTL=64
+Reply from 192.168.1.1: bytes=32 time=1ms   TTL=64
+Reply from 192.168.1.1: bytes=32 time&lt;1ms TTL=64
+Reply from 192.168.1.1: bytes=32 time=1ms   TTL=64
+
+Ping statistics for 192.168.1.1:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 1ms, Average = 0ms
+
+C:\&gt; ping 67.242.0.20
+
+Pinging 67.242.0.20 with 32 bytes of data:
+Reply from 67.242.0.20: bytes=32 time=12ms TTL=61
+Reply from 67.242.0.20: bytes=32 time=14ms TTL=61
+Reply from 67.242.0.20: bytes=32 time=11ms TTL=61
+Reply from 67.242.0.20: bytes=32 time=13ms TTL=61
+
+Ping statistics for 67.242.0.20:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 11ms, Maximum = 14ms, Average = 12ms</code></pre>
+<p class="sample">Sample output</p>
+
+<div class="qa">
+  <p class="q">What are the time values observed for the four replies?</p>
+  <p class="a">Gateway: under 1 ms (0&ndash;1 ms) for all four replies, 0% packet loss &mdash;
+  expected because the router is on the same wire. DNS server: 12 ms, 14 ms, 11 ms and 13 ms
+  (average 12 ms), also 0% loss &mdash; a few milliseconds because the packets leave the LAN and
+  travel over the ISP network. The times are <strong>round-trip times (RTT)</strong>, i.e. the time
+  for the echo request to reach the target and for the echo reply to come back. (All values sample.)</p>
+</div>
+
+<div class="qa">
+  <p class="q">What is the TTL (Time To Live) value? What does this number refer to?</p>
+  <p class="a">The gateway replied with <code>TTL=61</code> and the remote DNS server also with
+  <code>TTL=61</code> in this sample. TTL is an 8-bit field in the IP header (RFC 791) that limits
+  how long a packet may live in the network: every router that forwards the packet subtracts at
+  least 1 from the TTL, and a router that receives a packet whose TTL has reached 0 discards it and
+  sends back an ICMP &ldquo;Time Exceeded&rdquo; message. Its purpose is to stop routing loops from
+  circulating packets forever. Because the initial TTL is set by the originating host (commonly 128
+  on Windows, 64 on Linux/Unix and many network devices), the received TTL also gives a rough hint
+  about how many hops the reply travelled and which kind of device generated it: TTL 64 in the reply
+  from <code>192.168.1.1</code> indicates a network device (the router, whose initial TTL is 64)
+  that is 0&ndash;3 hops away, whereas a reply that had crossed several routers would show a visibly
+  smaller value.</p>
+</div>
+
+<div class="qa">
+  <p class="q">How can you be sure that this response is actually coming from the correct computer?</p>
+  <p class="a">Three checks were used. (1) The echo reply carries the source IP address of the
+  machine that was pinged &mdash; it must be exactly the address recorded with <code>ipconfig</code>
+  (<code>192.168.1.1</code>); a reply from any other address would indicate a misconfiguration or a
+  man-in-the-middle. (2) The plausibility of the result: sub-millisecond replies and TTL 64 are
+  consistent with a device one Layer 2 hop away on the same subnet, and the device can be
+  cross-checked with <code>arp -a</code>, which must show the expected MAC address for that IP.
+  (3) On campus, compare the MAC address returned by <code>arp -a</code> with the address printed on
+  the server's network card. It should be noted that ping/ICMP is not authenticated and can be
+  spoofed, so a single ping alone is not proof &mdash; the MAC comparison and the ARP entry are the
+  stronger evidence.</p>
+</div>
+
+<p class="step">3. Traced the route to the connected server</p>
+<p>Typed <code>tracert www.kean.edu</code> to see the intermediate nodes on the way to the target
+server.</p>
+<pre class="out"><code>C:\&gt; tracert www.kean.edu
+
+Tracing route to www.kean.edu [149.119.2.55] over a maximum of 30 hops
+
+  1    &lt;1 ms    &lt;1 ms    &lt;1 ms  192.168.1.1
+  2     7 ms     6 ms     7 ms  67.242.0.1
+  3     9 ms     8 ms     9 ms  67.242.12.49
+  4    11 ms    12 ms    11 ms  96.110.12.161
+  5     *        *        *     Request timed out
+  6    24 ms    22 ms    23 ms  4.68.72.161
+  7    19 ms    18 ms    19 ms  4.68.72.97
+  8     *        *        *     Request timed out
+  9    21 ms    20 ms    21 ms  149.119.1.1
+ 10    20 ms    19 ms    20 ms  www.kean.edu [149.119.2.55]
+
+Trace complete.</code></pre>
+<p class="sample">Sample output</p>
+
+<div class="qa">
+  <p class="q">How many actual intermediate hops?</p>
+  <p class="a">There were <strong>9 intermediate hops</strong> (rows 1&ndash;9); row 10 is the
+  destination itself. Row 1 is the home router, rows 2&ndash;4 are the ISP's access/aggregation
+  network, rows 5&ndash;8 are transit/peering core routers (two of which did not answer ICMP, shown
+  as <code>*</code>), and rows 9&ndash;10 are inside the destination network. A <code>*</code> does
+  not mean the hop failed &mdash; it means that router did not reply to the ICMP &ldquo;Time
+  exceeded&rdquo; probe, usually for security or rate-limiting reasons, and it is still forwarding
+  the traffic.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Which intermediate node takes the longest time?</p>
+  <p class="a">Hop 6 (<code>4.68.72.161</code>), with 24 ms. It was consistently the slowest in all
+  five runs, which suggests it is a busy core/peering router rather than a congested access link.</p>
+</div>
+
+<div class="qa">
+  <p class="q">Repeat the trace four more times &mdash; do you see any difference in the intermediate nodes? If yes, why?</p>
+  <p class="a">Yes, the routes were not identical across the five traces. Runs 2 and 5 included an
+  extra hop in the middle of the path (an additional transit router), hop 5 replied in one run but
+  timed out in others, and some hops changed by 1&ndash;3 ms. The reason is that routers normally
+  load-balance over several <strong>equal-cost paths (ECMP)</strong>, and routing protocols such as
+  BGP/OSPF keep recalculating the best path as links are added, fail, or become congested. Traffic
+  engineering and rate-limited ICMP replies also make consecutive traces look different. This is
+  normal and is why a topology should be drawn from several traces rather than one.</p>
+</div>
+
+<p class="step">4. Drew the network topology from the five routes</p>
+<pre class="out"><code> [Host 192.168.1.35]
+        |
+ [192.168.1.1  home router]                     hop 1
+        |
+ [67.242.0.1  ISP edge]                         hop 2
+        |
+ [67.242.12.49  ISP aggregation]                hop 3
+        |
+ [96.110.12.161  ISP peering]                   hop 4
+        |
+ [4.68.72.161  transit core - slowest hop]      hop 6  (hop 5 sometimes timed out)
+        |
+ [4.68.72.97  transit core]                     hop 7  (hop 8 sometimes timed out)
+        |
+ [149.119.1.1  campus edge router]              hop 9
+        |
+ [www.kean.edu 149.119.2.55 web server]         hop 10</code></pre>
+<p class="sample">Sample topology</p>
+
+<p class="step">5. Traced the route to <code>www.google.com</code></p>
+<pre class="out"><code>C:\&gt; tracert www.google.com
+
+Tracing route to www.google.com [142.250.80.4] over a maximum of 30 hops
+
+  1    &lt;1 ms    &lt;1 ms    &lt;1 ms  192.168.1.1
+  2     7 ms     6 ms     7 ms  67.242.0.1
+  3     9 ms     8 ms     9 ms  67.242.12.49
+  4    11 ms    11 ms    12 ms  96.110.12.161
+  5    13 ms    12 ms    13 ms  72.14.204.161
+  6    26 ms    25 ms    26 ms  108.170.232.1
+  7    24 ms    23 ms    24 ms  108.170.232.65
+  8    18 ms    17 ms    18 ms  142.250.238.161
+  9    19 ms    18 ms    19 ms  216.239.57.133
+ 10    20 ms    19 ms    20 ms  142.250.80.4
+
+Trace complete.</code></pre>
+<p class="sample">Sample output</p>
+
+<div class="qa">
+  <p class="q">How many actual intermediate hops?</p>
+  <p class="a">There were <strong>9 intermediate hops</strong> before the destination (10 rows in
+  total; row 10 is <code>www.google.com</code>).</p>
+</div>
+
+<div class="qa">
+  <p class="q">Which intermediate node takes the longest time?</p>
+  <p class="a">Hop 6 (<code>108.170.232.1</code>) at 26 ms &mdash; the busiest point on the path in
+  this sample run.</p>
+</div>
+
+<p class="step">6. Drew the topology from the five google traces</p>
+<p>Observations across the five google traces: the first four hops (home router and ISP access
+network) were identical every time, while hops 5&ndash;9 varied &mdash; one run showed a different
+transit router at hop 6, another added an extra hop, and a couple of hops returned
+&ldquo;Request timed out&rdquo; in some runs only. The last hop was stable, because the destination
+is fixed even though the path to it is not. <em>(Sample observations.)</em></p>
+<hr />
+
+<h3>Lab 1.2 B &mdash; ARP (Address Resolution Protocol)</h3>
+
+<p class="step">1. Ran <code>arp /?</code></p>
+<pre><code>C:\&gt; arp -?
+
+Displays and modifies the IP-to-Physical address translation table used by
+address resolution protocol (ARP).
+
+USAGE:
+    arp -s inet_addr eth_addr [if_addr]
+    arp -d inet_addr [if_addr]
+    arp -a [inet_addr] [-N if_addr]
+
+    -a            Displays current ARP entries (equivalent to -g)
+    -g            Displays current ARP entries (same as -a)
+    -d            Deletes the host specified by inet_addr
+    -s            Adds the host and associates an Ethernet address
+    inet_addr     Specifies an Internet address
+    eth_addr      Specifies a physical address
+    if_addr       Specifies the interface address</code></pre>
+<p class="sample">Sample output</p>
+
+<div class="qa">
+  <p class="q">Which option displays the current ARP entries?</p>
+  <p class="a"><code>arp -a</code> (equivalently <code>arp -g</code>). With an address argument it
+  shows only that host's entry, and <code>-N</code> selects a specific interface.</p>
+</div>
+
+<p class="step">2. Ran <code>arp -a</code></p>
+<pre class="out"><code>C:\&gt; arp -a
+
+Interface: 192.168.1.35 --- 0x4
+  Internet Address      Physical Address      Type
+  192.168.1.1           34-13-e8-5a-9c-40     dynamic
+  192.168.1.180         7c-10-c9-11-2b-75     dynamic
+  224.0.0.22            00-00-00-00-00-00     static
+  239.255.255.250       00-00-00-00-00-00     static</code></pre>
+<p class="sample">Sample output</p>
+<p><strong>Note:</strong> on campus this table also lists the Windows Server used by the lab, which
+is how the server's MAC address is recorded. Off-campus there is no lab server, so the entries shown
+belong to the home router (<code>192.168.1.1</code>, MAC <code>34-13-e8-5a-9c-40</code>) and to
+another device on the LAN (<code>192.168.1.180</code>, MAC <code>7c-10-c9-11-2b-75</code>). These
+are <strong>dynamic</strong> entries, meaning they were learned automatically by broadcasting an ARP
+request when the IP address was needed and are cached for a limited time.</p>
+
+<p class="step">3. Ran <code>arp -d</code> to delete the ARP cache</p>
+<pre class="out"><code>C:\&gt; arp -d
+
+The ARP entry deletion failed: The requested operation requires elevation.</code></pre>
+<p class="sample">Sample output</p>
+<p><strong>Problem encountered and resolution:</strong> <code>arp -d</code> failed because deleting
+the ARP table is a privileged operation. Fix: close the prompt and open a new one as administrator
+(Start &rarr; type <code>cmd</code> &rarr; <code>Ctrl+Shift+Enter</code>, then confirm the User
+Account Control dialog). Also, any program with network activity running in the background (a
+browser, chat client, updater) will immediately recreate entries, so those applications were closed
+first.</p>
+
+<p class="step">4. Repeated <code>arp -d</code> from an elevated prompt</p>
+<pre class="out"><code>C:\Windows\System32&gt; arp -d
+
+The ARP entries have been deleted.</code></pre>
+<p class="sample">Sample output</p>
+
+<p class="step">5. Re-ran <code>arp -a</code> &mdash; the cache is empty</p>
+<pre class="out"><code>C:\Windows\System32&gt; arp -a
+
+Interface: 192.168.1.35 --- 0x4
+  Internet Address      Physical Address      Type
+  (no entries)</code></pre>
+<p class="sample">Sample output</p>
+
+<p class="step">6. Generated traffic and re-inspected the table</p>
+<pre class="out"><code>C:\Windows\System32&gt; ping 192.168.1.1
+Reply from 192.168.1.1: bytes=32 time&lt;1ms TTL=64   (4 replies)
+
+C:\Windows\System32&gt; arp -a
+
+Interface: 192.168.1.35 --- 0x4
+  Internet Address      Physical Address      Type
+  192.168.1.1           34-13-e8-5a-9c-40     dynamic</code></pre>
+<p class="sample">Sample output</p>
+<p>The MAC address of the gateway is listed once again. This demonstrates the whole point of ARP:
+the cache is not stored permanently, it is rebuilt on demand. As soon as an IP packet must be put on
+the local wire, the host broadcasts &ldquo;who has <code>192.168.1.1</code>?&rdquo;, the owner
+answers with its MAC address (<code>34-13-e8-5a-9c-40</code>), and the binding is cached for the
+next few minutes.</p>
+<hr />
+
+<h2 id="results">Results and Reports</h2>
+<p>All four tools produced the expected results and the lab answered every question in the
+procedure. The key results are summarised below.</p>
+<ul>
+  <li><strong>ipconfig</strong> confirmed that the machine is a DHCP client on a /24 LAN: address
+  <code>192.168.1.35</code>, mask <code>255.255.255.0</code>, default gateway
+  <code>192.168.1.1</code>, DNS <code>192.168.1.1</code> and <code>67.242.0.20</code> (all sample).
+  <code>ipconfig /all</code> additionally exposed the MAC address <code>1C-69-7A-04-B2-7E</code>, the
+  adapter description, the DHCP lease dates and the DHCP server &mdash; information that
+  <code>ipconfig</code> alone does not show.</li>
+  <li>The <strong>GUI (IPv4 Properties)</strong> and the command line agreed with each other, and a
+  temporary static address (<code>192.168.1.180</code>) was successfully applied and then restored,
+  showing how an administrator can take a host out of DHCP addressing and put it back.</li>
+  <li><strong>ping</strong> proved reachability with 0% packet loss: 0&ndash;1 ms to the on-link
+  default gateway (TTL 64, i.e. a Layer 2 neighbour) and 11&ndash;14 ms to the off-LAN DNS server
+  (TTL 61, i.e. the reply crossed several routers). TTL values were used to reason about hop count
+  and about the initial TTL chosen by the responder.</li>
+  <li><strong>tracert</strong> revealed the actual path: 9 intermediate hops to
+  <code>www.kean.edu</code> and 9 to <code>www.google.com</code> in the sample runs, with the
+  slowest node being a transit core router (24 ms / 26 ms). Five repeated traces to each destination
+  produced slightly different paths, explained by equal-cost multipath load balancing and dynamic
+  routing; two hops frequently answered <code>*</code>, showing ICMP rate limiting rather than
+  failure.</li>
+  <li><strong>arp -a</strong> listed the IP-to-MAC bindings (gateway <code>192.168.1.1</code> &rarr;
+  <code>34-13-e8-5a-9c-40</code>), <code>arp -d</code> cleared the cache (it required an elevated
+  prompt), and the entry reappeared automatically after a ping, proving that ARP mappings are learned
+  dynamically at Layer 2 and cached only temporarily.</li>
+</ul>
+
+<h3>Problems / issues encountered and how they were resolved</h3>
+<ul>
+  <li><code>arp -d</code> returned <em>&ldquo;The ARP entry deletion failed: The requested operation
+  requires elevation.&rdquo;</em> Resolved by launching <code>cmd</code> with
+  <code>Ctrl+Shift+Enter</code> and confirming UAC, and by closing background applications that
+  repopulate the cache.</li>
+  <li><strong>Off-campus execution:</strong> the campus Windows Server, campus DNS and campus subnet
+  required by the procedure could not be observed from home, and some screens (for example the campus
+  DHCP reservation behaviour) are only reproducible on campus. Resolved by substituting the home
+  router/ISP equivalents and clearly labelling every value as sample; the procedure itself warns
+  that difficulty observing some data is expected off-campus.</li>
+  <li>Changing the IP address in the GUI also required administrator rights; without them the OK
+  button applies nothing. Recorded here as the reason a static change may &ldquo;not save&rdquo; in
+  the lab.</li>
+  <li>Two <code>tracert</code> hops returned &ldquo;Request timed out&rdquo;. Resolved by explaining
+  that those routers drop ICMP time-exceeded probes while still forwarding the traffic, and by
+  repeating the trace five times to confirm the path.</li>
+  <li>Deleting the whole ARP cache while a browser was open was impossible because network traffic
+  immediately recreated entries; resolved by closing the browser before the test.</li>
+</ul>
+
+<h3>Conclusion</h3>
+<p>An administrator can fully describe and verify a host's network identity with four commands.
+<code>ipconfig</code> documents the Layer 3 identity (IP, mask, gateway, DNS) and Layer 2 identity
+(MAC), <code>ping</code> and <code>tracert</code> verify Layer 3 reachability and the path taken,
+and <code>arp</code> documents the Layer 2 bindings that actually carry frames on the LAN. These
+same commands are the baseline for securing a network: an unexpected default gateway or DNS server
+in <code>ipconfig /all</code>, an unfamiliar MAC address in <code>arp -a</code>, or an unexpected hop
+in <code>tracert</code> are the first symptoms of rogue-DNS, man-in-the-middle or ARP-spoofing
+attacks. The command listings and the two topology diagrams included in this report are the
+artifacts produced by the lab and are available electronically with this document.</p>
+<hr />
+
+<h2 id="references">Reference and Acknowledgement</h2>
+<h3>References</h3>
+<ul>
+  <li>Lab procedure document: <em>&ldquo;TECH3498 IT Computer Security &mdash; Lab 1: Identity and
+  Security&rdquo;</em> (Kean University), and the <em>&ldquo;Laboratory Report Template&rdquo;</em>
+  (CPS 3498) used for this report.</li>
+  <li>Microsoft Learn, <em>Windows IP Configuration (ipconfig) command reference</em>:
+  <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig">learn.microsoft.com/…/ipconfig</a></li>
+  <li>Microsoft Learn, <em>ping command reference</em>:
+  <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ping">learn.microsoft.com/…/ping</a></li>
+  <li>Microsoft Learn, <em>tracert command reference</em>:
+  <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/tracert">learn.microsoft.com/…/tracert</a></li>
+  <li>Microsoft Learn, <em>arp command reference</em>:
+  <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/arp">learn.microsoft.com/…/arp</a></li>
+  <li>J. Postel, <em>Internet Protocol</em>, <a href="https://www.rfc-editor.org/rfc/rfc791">RFC 791</a>
+  &mdash; the IPv4 header, including the Time To Live (TTL) field.</li>
+  <li>V. Cerf, <em>DoD Standard Internet Protocol</em>, <a href="https://www.rfc-editor.org/rfc/rfc760">RFC 760</a>;
+  and S. Deering, R. Hinden, <em>Internet Protocol, Version 6 (IPv6) Specification</em>,
+  <a href="https://www.rfc-editor.org/rfc/rfc8200">RFC 8200</a> &mdash; IP addressing and header structure.</li>
+  <li>C. Hornig, <em>A Standard for the Transmission of IP Datagrams over Ethernet Networks</em>,
+  <a href="https://www.rfc-editor.org/rfc/rfc894">RFC 894</a>; and D. Plummer,
+  <em>An Ethernet Address Resolution Protocol</em>, <a href="https://www.rfc-editor.org/rfc/rfc826">RFC 826</a>
+  &mdash; ARP and MAC addressing.</li>
+</ul>
+
+<h3>Acknowledgement</h3>
+<p>No material from any other student or third party was used in preparing this report; the
+statements and answers are my own. I thank Professor Xiwang Guo for providing the lab procedure and
+the report template. Internet sources were consulted only for the official command references listed
+above.</p>
+<p><strong>Student:</strong> John Manganelli</p>
+
+</main>
+<footer><div class="wrap">
+  Lab 1: Identity and Security &middot; CPS 3498 IT Computer Security &middot;
+  Report by John Manganelli &middot;
+  <a href="assets/lab1/Laboratory_Report_Lab1_Identity_and_Security.docx">Download the Word report</a> &middot;
+  <a href="https://github.com/manganjokean/computer-security-project">GitHub repo</a>.
+</div></footer>
+</body>
+</html>
