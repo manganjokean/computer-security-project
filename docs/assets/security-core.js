@@ -1,4 +1,4 @@
-import {course,assignmentTopic} from './course-knowledge.js?v=4';
+import {course,assignmentTopic} from './course-knowledge.js?v=5';
 // Pure, allowlisted intent parsing. Model output is never executable.
 export function parseCommands(text){
  const t=text.toLowerCase(), actions=[];
