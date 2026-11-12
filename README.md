@@ -213,3 +213,10 @@ Full interpretation: notebook §7 and report §Security Analysis.
 - All code, analysis, and visualizations in this repository were written for
   this project. No external Kaggle notebook was reproduced.
 - Libraries used: scikit-learn, XGBoost, SHAP, pandas, NumPy, Matplotlib, Seaborn.
+
+
+## Conversational security assistant
+
+The existing Pages homepage now includes Sentinel: natural-language appearance controls, an in-memory synthetic security monitor, a captioned phishing training video, and cybersecurity questions with project references. Select **Enable browser AI** for WebLLM/SmolLM2 inference (WebGPU and a model download required), or use the clearly labeled curated study mode. Optional browser speech recognition and text-to-speech are supported where available.
+
+Implementation, tested commands, limitations and a screen-recording script: [assignment submission guide](docs/assistant-submission.html). Run `npm test` for command/topic/log-window checks. Preview with `python -m http.server 8765 --directory docs`. No build or API key is required. Missing Assignments 1–9.2 are explicitly acknowledged; only the actual IoT project, Assignment 6 and Labs 1–2 are currently covered. The training MP4 is an app feature; record your own website demonstration for Canvas.

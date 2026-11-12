@@ -1,0 +1,6 @@
+{
+  "name": "computer-security-project",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node tests/assistant.test.mjs" }
+}
