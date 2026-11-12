@@ -1,0 +1,895 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab 2 &mdash; Network Configuration and Connectivity</title>
+<style>
+  :root { --ink:#16202c; --muted:#5b6b7c; --line:#e3e9f0; --accent:#0b6bcb; --bg:#fff; --soft:#f6f9fc; }
+  * { box-sizing:border-box; }
+  body { margin:0; color:var(--ink); background:var(--bg);
+         font:17px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+  .hero { background:linear-gradient(135deg,#0b2545 0%,#134074 55%,#1d5c9e 100%); color:#fff; padding:44px 0 0; }
+  .wrap { max-width:900px; margin:0 auto; padding:0 22px; }
+  .eyebrow { margin:0; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:#9fc4ef; }
+  h1 { margin:.25em 0 .1em; font-size:clamp(28px,4.4vw,42px); line-height:1.15; }
+  .sub { margin:0 0 26px; color:#d6e6f8; font-size:18px; }
+  .tabs { display:flex; flex-wrap:wrap; gap:4px; margin:0; }
+  .tabs a { color:#cfe1f7; text-decoration:none; padding:11px 15px; font-size:15px;
+             border-bottom:3px solid transparent; }
+  .tabs a:hover { color:#fff; background:rgba(255,255,255,.08); }
+  .tabs a.active { color:#fff; border-bottom-color:#7fb6f0; font-weight:600; }
+  main { padding:34px 0 60px; }
+  h2 { margin-top:1.7em; padding-bottom:.25em; border-bottom:2px solid var(--line); font-size:26px; }
+  h3 { margin-top:1.5em; font-size:20px; }
+  h4 { margin-top:1.4em; font-size:17px; }
+  a { color:var(--accent); }
+  code { background:var(--soft); border:1px solid var(--line); border-radius:4px;
+          padding:.1em .35em; font-size:.9em; }
+  pre { background:var(--soft); border:1px solid var(--line); border-radius:8px; padding:14px 16px;
+         overflow-x:auto; }
+  pre code { background:none; border:0; padding:0; font-size:13.5px; line-height:1.5; }
+  table { border-collapse:collapse; width:100%; margin:1.1em 0; font-size:15.5px; display:block;
+           overflow-x:auto; }
+  th,td { border:1px solid var(--line); padding:8px 11px; text-align:left; }
+  th { background:var(--soft); }
+  tr:nth-child(even) td { background:#fbfdff; }
+  blockquote { margin:1em 0; padding:.15em 1.1em; border-left:4px solid #b9d4f2; color:var(--muted);
+                background:var(--soft); }
+  hr { border:0; border-top:1px solid var(--line); margin:2.2em 0; }
+  footer { border-top:1px solid var(--line); padding:22px 0 40px; color:var(--muted); font-size:14px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; margin:1.2em 0 1.6em; }
+  .card { display:block; border:1px solid var(--line); border-radius:10px; padding:15px 16px;
+           text-decoration:none; color:var(--ink); background:#fff; }
+  .card:hover { border-color:#9ec6ee; box-shadow:0 4px 14px rgba(11,107,203,.10); }
+  .card b { color:var(--accent); display:block; margin-bottom:3px; }
+  .card span { color:var(--muted); font-size:14.5px; line-height:1.45; }
+  .qa { margin:1.1em 0 1.4em; }
+  .qa .q { font-weight:600; color:#0b2545; }
+  .qa .q::before { content:"Q: "; color:var(--accent); font-weight:700; }
+  .qa .a { margin:.3em 0 0; }
+  .qa .a::before { content:"A: "; font-weight:700; color:var(--muted); }
+  .sample { color:#8a6d1a; font-size:12.5px; font-weight:600; letter-spacing:.06em;
+            text-transform:uppercase; margin:0 0 .35em; }
+  .out { border-left:4px solid #9ec6ee; }
+  .meta { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px 22px;
+          background:var(--soft); border:1px solid var(--line); border-radius:10px;
+          padding:14px 18px; margin:1.4em 0 0; font-size:15.5px; }
+  .meta div span { display:block; color:var(--muted); font-size:12.5px; letter-spacing:.08em;
+                   text-transform:uppercase; }
+  .note { border-left:4px solid #e6b800; background:#fffdf3; color:#5b4a12;
+          padding:.6em 1.1em; margin:1.4em 0; font-size:15.5px; }
+  ol li, ul li { margin:.35em 0; }
+  .step { margin:1.5em 0 .3em; font-weight:600; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Computer Security Project &middot; TECH3498</p>
+    <h1>Lab 2: Network Configuration and Connectivity</h1>
+    <p class="sub">Name resolution, <code>nslookup</code>, <code>netstat</code> and IPv6 &middot; the hosts file, the DNS cache, <code>netsh</code> and Wireshark</p>
+
+<nav class="tabs">
+  <a href="index.html">Overview</a>
+  <a href="notebook.html">Notebook &amp; results</a>
+  <a href="presentation.html">Presentation</a>
+  <a href="xss_detection.html">XSS detection</a>
+  <a href="lab1.html">Lab 1</a>
+  <a href="lab2.html" class="active">Lab 2</a>
+  <a href="videos.html">Videos</a>
+  <a href="https://github.com/manganjokean/computer-security-project/blob/main/report/report.tex">Report (LaTeX)</a>
+  <a href="https://github.com/manganjokean/computer-security-project/releases/tag/nbaiot-data">Dataset</a>
+  <a href="https://github.com/manganjokean/computer-security-project">GitHub</a>
+</nav>
+  </div>
+</header>
+<main class="wrap">
+
+<div class="cards">
+  <a class="card" href="#procedure"><b>Procedure and notes &rarr;</b>
+    <span>Labs 2.1 (localhost, hosts file, <code>nslookup</code>, <code>netstat</code>) and 2.2 (IPv6, <code>netsh</code>, Wireshark), step by step.</span></a>
+  <a class="card" href="#questions"><b>Questions answered &rarr;</b>
+    <span>Every question asked in the procedure, with the observed output behind each answer.</span></a>
+  <a class="card" href="#results"><b>Results and reports &rarr;</b>
+    <span>What was observed, the problems hit during the lab and how each was resolved.</span></a>
+  <a class="card" href="#references"><b>References &rarr;</b>
+    <span>Lab procedure, Microsoft command references and the RFCs behind DNS and IPv6.</span></a>
+</div>
+
+<div class="meta">
+  <div><span>Course ID</span>TECH3498 &mdash; IT Computers Security</div>
+  <div><span>Lab</span>Lab 2: Network Configuration and Connectivity</div>
+  <div><span>Student</span>John Manganelli</div>
+  <div><span>Instructor</span>Professor Xiwang Guo</div>
+  <div><span>Date</span>November 12, 2026</div>
+  <div><span>Tools used</span><code>ipconfig</code>, <code>ping</code>, <code>nslookup</code>, <code>netstat</code>, <code>netsh</code>, Wireshark</div>
+</div>
+
+<div class="note">
+  <strong>Sample data notice.</strong> This report was prepared without live access to the lab
+  network, so every command output, address, MAC address and packet capture below is a
+  <strong>clearly marked sample value</strong> that illustrates the expected result. Replace them
+  with the actual output produced on your own computer before submitting. Command help text
+  (<code>netstat /?</code>, <code>nslookup &rarr; help</code>, <code>netsh</code> output format) is
+  verbatim from Windows and is not machine specific.
+</div>
+
+<h2>Description</h2>
+<p>This lab covers two related topics: <strong>how a computer turns a name into an address</strong>
+(name resolution) and <strong>how a modern host is addressed with IPv6</strong>. Before any packet
+can be sent, a program that is given <code>www.kean.edu</code> needs a 32-bit IPv4 address; the
+resolver performs that translation by consulting, in order, the local <strong>hosts file</strong>, the
+<strong>DNS resolver cache</strong>, and finally the <strong>Domain Name System</strong> over UDP port 53.
+Because that order is fixed and the hosts file is consulted first, a single line in one plain-text
+file can silently redirect any application on the machine &mdash; which is exactly why the file is
+administrator-writable and why it is an interesting attack target.</p>
+<p>The second part of the lab moves to <strong>IPv6</strong>, which is installed by default on Windows
+7/8/10/11. IPv6 uses 128-bit addresses, auto-configures itself with <strong>SLAAC</strong> and
+<strong>router advertisements</strong>, and mandates a <strong>link-local address</strong>
+(<code>fe80::/10</code>) on every interface. Link-local addresses are only reachable on the local
+segment and are qualified with an <strong>interface index</strong> (the <code>%4</code> suffix), which is
+what makes the <code>ping -6</code> and <code>netsh</code> commands in this lab work. Packet capture
+with <strong>Wireshark</strong> is used to see the ICMPv6 echo requests and replies on the wire, which
+is the IPv6 equivalent of a plain <code>ping</code>.</p>
+
+<h3>System configuration used for this lab (sample &mdash; record your own)</h3>
+<ul>
+  <li><strong>Computer:</strong> Dell OptiPlex 7090 desktop, wired Ethernet (Intel Ethernet Connection I219-LM) plus Wi-Fi adapter.</li>
+  <li><strong>Operating system:</strong> Windows 11 Pro, version 23H2, OS build 22631.3155 (IPv6 is pre-installed, so the Windows XP <code>netsh interface ipv6 install</code> step was not needed).</li>
+  <li><strong>Location where the lab was performed:</strong> off-campus, at home (Union Township, New Jersey).</li>
+  <li><strong>Type of network connection:</strong> Ethernet and Wi-Fi through a home consumer router acting as default gateway, DHCP server and IPv6 router (RA source).</li>
+  <li><strong>Internet Service Provider (ISP):</strong> Optimum (Altice) cable broadband.</li>
+  <li><strong>Addressing (IPv4):</strong> DHCP-assigned <code>192.168.1.35</code>, mask <code>255.255.255.0</code>, gateway / DHCP / DNS <code>192.168.1.1</code> (sample values).</li>
+  <li><strong>Addressing (IPv6):</strong> link-local <code>fe80::9c7e:4a12:5f31:8b21</code> on interface index <strong>4</strong>, plus a global address learned from the router's router advertisement (sample values).</li>
+  <li><strong>Hosts-file entries added:</strong> <code>winserv</code> &rarr; gateway IP, <code>me</code> &rarr; this computer's IP, removed again at the end of the lab.</li>
+  <li><strong>Change in conditions:</strong> the temporary IPv6 address in Lab 2.2 step 6 was removed in step 9 with <code>netsh interface ipv6 reset</code>; the hosts-file lines were removed and the DNS cache flushed so the machine was back in its original state.</li>
+</ul>
+<hr />
+
+<h2 id="procedure">Procedure and Notes</h2>
+<p>The steps below follow the lab procedure in order. Everything that had to be observed or recorded
+is included, together with the answers to the questions asked in the procedure. Sample terminal
+output is shown in the shaded blocks and labelled <span class="sample">Sample</span>.</p>
+
+<h3>Lab 2.1 A &mdash; Name Resolution in the Operating System: <code>localhost</code></h3>
+
+<p class="step">1. Signed on with an administrator account and recorded the system information</p>
+<p>Signed on with an account that has administrator privileges (required later to edit
+<code>hosts</code> and to run <code>netsh</code>) and recorded the system information listed above.</p>
+
+<p class="step">2. Opened the Command Prompt</p>
+<p>Start &rarr; type <code>cmd</code> &rarr; press <code>Ctrl+Shift+Enter</code> so the prompt runs
+elevated. On Mac OS the equivalent is Finder &rarr; Applications &rarr; Utilities &rarr; Terminal.</p>
+
+<p class="step">3. Ran <code>ipconfig /all</code></p>
+<pre class="out"><code>C:\&gt; ipconfig /all
+
+Windows IP Configuration
+
+   Host Name . . . . . . . . . . . . : DESKTOP-7QK2M4L
+   Primary Dns Suffix  . . . . . . . :
+   Node Type . . . . . . . . . . . . : Hybrid
+   IP Routing Enabled. . . . . . . . : No
+   WINS Proxy Enabled. . . . . . . . : No
+   DNS Suffix Search List. . . . . . : lan
+
+Ethernet adapter Ethernet:
+
+   Connection-specific DNS Suffix  . : lan
+   Description . . . . . . . . . . . : Intel(R) Ethernet Connection (2) I219-LM
+   Physical Address. . . . . . . . . : 1C-69-7A-04-B2-7E
+   DHCP Enabled. . . . . . . . . . . : Yes
+   Link-local IPv6 Address . . . . . : fe80::9c7e:4a12:5f31:8b21%4(Preferred)
+   IPv4 Address. . . . . . . . . . . : 192.168.1.35(Preferred)
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1
+   DHCP Server . . . . . . . . . . . : 192.168.1.1
+   DNS Servers . . . . . . . . . . . : 192.168.1.1
+                                      67.242.0.20</code></pre>
+<p class="sample">Sample output</p>
+<p>Note the link-local IPv6 address and the <strong>interface index</strong> (<code>%4</code>) after it
+&mdash; that number is needed for every IPv6 command in Lab 2.2. On Mac OS the equivalent command is
+<code>ifconfig -a</code>.</p>
+
+<p class="step">4. Pinged the IPv4 loopback address</p>
+<pre class="out"><code>C:\&gt; ping 127.0.0.1
+
+Pinging 127.0.0.1 with 32 bytes of data:
+Reply from 127.0.0.1: bytes=32 time&lt;1ms TTL=128
+Reply from 127.0.0.1: bytes=32 time&lt;1ms TTL=128
+Reply from 127.0.0.1: bytes=32 time&lt;1ms TTL=128
+Reply from 127.0.0.1: bytes=32 time&lt;1ms TTL=128
+
+Ping statistics for 127.0.0.1:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 0ms, Maximum = 0ms, Average = 0ms</code></pre>
+<p class="sample">Sample output</p>
+
+<p class="step">5. Pinged the IPv6 loopback address</p>
+<pre class="out"><code>C:\&gt; ping ::1
+
+Pinging ::1 with 32 bytes of data:
+Reply from ::1: bytes=32 time&lt;1ms TTL=128
+Reply from ::1: bytes=32 time&lt;1ms TTL=128
+Reply from ::1: bytes=32 time&lt;1ms TTL=128
+Reply from ::1: bytes=32 time&lt;1ms TTL=128
+
+Ping statistics for ::1:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),</code></pre>
+<p class="sample">Sample output</p>
+<p>On Mac OS 10 this command does not work; the correct command there is
+<code>ping6 ::1</code> (on newer macOS releases <code>ping -6 ::1</code> works as well, because
+<code>ping</code> selects the address family from the address itself).</p>
+
+<div class="qa">
+  <p class="q">Are the results the same? Why?</p>
+  <p class="a">They look the same &mdash; four replies, 0% loss, sub-millisecond round trip &mdash;
+  but they are <strong>not the same packet</strong>, and that is the point of the exercise. The
+  <code>ping 127.0.0.1</code> test sends an <strong>ICMPv4</strong> echo request to the IPv4 loopback
+  address (<code>127.0.0.0/8</code>, RFC 1122), while <code>ping ::1</code> sends an
+  <strong>ICMPv6</strong> echo request to the IPv6 loopback address (<code>::1/128</code>, RFC 4291
+  &sect;2.5.3) and therefore travels through the IPv6 stack and the IPv6 loopback interface. Both
+  succeed because both addresses are bound to the loopback interface by the operating system and are
+  never placed on the physical wire, so the round trip is inside the kernel and the delay is
+  effectively 0 ms. The <code>TTL=128</code> value is the initial TTL/hop limit set by Windows (the
+  packet crossed no router, so nothing was decremented) &mdash; in Lab 1 the same value of 128 was
+  explained as the Windows default. So: same <em>behaviour</em> (prove the local TCP/IP stack is
+  alive), different protocol (ICMPv4 vs ICMPv6), different address family, different 128-bit vs 32-bit
+  address. If either one failed while the other succeeded, the corresponding protocol family would be
+  broken or disabled on that host.</p>
+</div>
+
+<p class="step">6. Pinged <code>localhost</code></p>
+<pre class="out"><code>C:\&gt; ping localhost
+
+Pinging localhost [127.0.0.1] with 32 bytes of data:
+Reply from 127.0.0.1: bytes=32 time&lt;1ms TTL=128
+Reply from 127.0.0.1: bytes=32 time&lt;1ms TTL=128
+Reply from 127.0.0.1: bytes=32 time&lt;1ms TTL=128
+Reply from 127.0.0.1: bytes=32 time&lt;1ms TTL=128
+
+Ping statistics for 127.0.0.1:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),</code></pre>
+<p class="sample">Sample output</p>
+<p>The square brackets around <code>[127.0.0.1]</code> are the important observation: the resolver
+turned the <em>name</em> <code>localhost</code> into an <em>address</em> before the ping was sent.</p>
+
+<div class="qa">
+  <p class="q">How does the computer know that <code>localhost</code> defaults to <code>127.0.0.1</code>?</p>
+  <p class="a">Two mechanisms work together. (1) The name is <strong>defined in the hosts file</strong>
+  &mdash; <code>C:\Windows\System32\drivers\etc\hosts</code> contains the line
+  <code>127.0.0.1&nbsp;&nbsp;&nbsp;localhost</code> (and, because the machine is dual-stack,
+  <code>::1&nbsp;&nbsp;&nbsp;localhost</code> as well), which is also visible in the file that step 7
+  opens. (2) The Windows resolver checks its name sources in a fixed order &mdash;
+  <strong>hosts file &rarr; DNS resolver cache &rarr; DNS server &rarr; LLMNR/mDNS</strong> &mdash; and the
+  hosts file is first, so a local mapping always beats DNS. Underneath both, the operating system has
+  the address itself configured: the loopback interface owns <code>127.0.0.1/8</code> and
+  <code>::1/128</code>, so nothing is ever routed off the machine. The lookup is performed by the
+  DNS Client service (<code>Dnscache</code>), which reads the hosts file at boot and after
+  <code>ipconfig /flushdns</code>. Because the mapping is local and static, it also works with no
+  network and no DNS server at all &mdash; which is the historical purpose of the file.</p>
+</div>
+
+<p class="step">7. Opened the hosts file</p>
+<p>Start &rarr; <code>notepad c:\windows\system32\drivers\etc\hosts</code> (on Mac OS:
+<code>sudo nano /private/etc/hosts</code>).</p>
+
+<div class="qa">
+  <p class="q">Observe the information displayed. What entries are already there?</p>
+  <p class="a">The stock Windows file contains no active entries at all &mdash; only a copyright
+  header, an explanation of the file format, a commented-out example block, and the localhost
+  mapping, which modern Windows also comments out because localhost is now resolved internally by the
+  resolver itself. The exact stock contents are shown in the block below.</p>
+</div>
+<pre class="out"><code># Copyright (c) 1993-2009 Microsoft Corp.
+#
+# This is a sample HOSTS file used by Microsoft TCP/IP for Windows.
+#
+# This file maps IP addresses to host names. Each entry should be kept on
+# an individual line. The IP address should be placed in the first column
+# followed by the corresponding host name. The IP address and the host
+# name should be separated by at least one space.
+#
+# Additionally, comments (such as these) may be inserted on individual
+# lines or following the machine name denoted by a '#' symbol.
+#
+# For example:
+#
+#      102.54.94.97     rhino.acme.net          # source server
+#       38.25.63.10     x.acme.net              # x client host
+
+# localhost name resolution is handled within DNS itself.
+#       127.0.0.1       localhost
+#       ::1             localhost</code></pre>
+<p class="sample">Stock Windows hosts file (verbatim)</p>
+
+<div class="qa">
+  <p class="q">Why are there some instructions commented out?</p>
+  <p class="a">Because the hosts file is a <strong>plain-text file that the resolver parses line by
+  line</strong>, and a line that begins with <code>#</code> (Windows also accepts <code>;</code>) is
+  ignored by the parser. Commenting is the only way to ship documentation, examples and a default
+  mapping inside the file itself without those lines actually taking effect &mdash; if Microsoft's
+  explanatory text were not commented out, every line of prose would be treated as a bogus
+  name-to-address mapping and would generate errors or, worse, bogus resolutions. The same mechanism
+  lets an administrator disable a mapping by commenting it out instead of deleting it, and lets an
+  attacker hide a line inside a block of innocuous text. It is also why the file has no syntax for
+  sections or includes: a comment is simply a skipped line.</p>
+</div>
+
+<p class="step">8. Added two lines to the end of the hosts file and saved</p>
+<pre class="out"><code>192.168.1.1     winserv      (IP address of the Default Gateway)
+192.168.1.35    me           (IP address of this computer)</code></pre>
+<p class="sample">Lines appended (sample values)</p>
+<p>File &rarr; Save, then closed Notepad. Notepad must be running <strong>as administrator</strong>
+here, otherwise Windows reports <em>&ldquo;Access is denied&rdquo;</em> because
+<code>C:\Windows\System32\drivers\etc</code> is protected by NTFS permissions (see the problems
+section).</p>
+
+<p class="step">9. Pinged the two new names</p>
+<pre class="out"><code>C:\&gt; ping me
+
+Pinging 192.168.1.35 [192.168.1.35] with 32 bytes of data:
+Reply from 192.168.1.35: bytes=32 time&lt;1ms TTL=128
+Reply from 192.168.1.35: bytes=32 time&lt;1ms TTL=128
+Reply from 192.168.1.35: bytes=32 time&lt;1ms TTL=128
+Reply from 192.168.1.35: bytes=32 time&lt;1ms TTL=128
+
+Ping statistics for 192.168.1.35:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+
+C:\&gt; ping winserv
+
+Pinging winserv [192.168.1.1] with 32 bytes of data:
+Reply from 192.168.1.1: bytes=32 time&lt;1ms TTL=64
+Reply from 192.168.1.1: bytes=32 time&lt;1ms TTL=64
+Reply from 192.168.1.1: bytes=32 time&lt;1ms TTL=64
+Reply from 192.168.1.1: bytes=32 time&lt;1ms TTL=64
+
+Ping statistics for 192.168.1.1:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),</code></pre>
+<p class="sample">Sample output</p>
+<p><code>ping me</code> shows the address twice (<code>192.168.1.35 [192.168.1.35]</code>) because the
+name resolved to the address the host already owns. <code>ping winserv</code> replies with
+<code>TTL=64</code>, the same value seen for the gateway in Lab 1 &mdash; the responder is the router,
+a network device whose initial TTL is 64.</p>
+
+<div class="qa">
+  <p class="q">Can you think of a way that this file could be exploited without administrator privilege?</p>
+  <p class="a">Yes. Writing the file normally needs administrator rights (NTFS permissions on
+  <code>C:\Windows\System32\drivers\etc</code>), but the file is only a <em>data</em> file, and three
+  realistic paths avoid a full privilege escalation:</p>
+  <p class="a"><strong>(1) A weak or inherited ACL.</strong> If the file &mdash; or a parent folder
+  &mdash; has been left writable by the <code>Users</code> group (a misconfiguration seen on
+  re-imaged and vendor-customised machines), any local low-privileged account can append a line and
+  therefore <strong>redirect any domain on that machine</strong>: point <code>update.microsoft.com</code>
+  or a banking host at an attacker-controlled IP, and the victim's browser, updater or agent talks to
+  the impostor. No DNS spoofing and no traffic on the wire is required, because the hosts file is
+  consulted <em>before</em> DNS. Adding <code>0.0.0.0&nbsp;&nbsp;av.example.com</code> instead is a
+  silent denial of service that stops security products from updating &mdash; a technique that real
+  malware uses.</p>
+  <p class="a"><strong>(2) Coercing an already-elevated process.</strong> A non-administrator who can
+  influence a service or installer running as SYSTEM (path/DLL hijacking, an unquoted service path, a
+  writable working directory, or a command injection in an admin tool) gets the file written for
+  them. The privilege escalation is not <em>in</em> the hosts file; the hosts file is the useful
+  payload.</p>
+  <p class="a"><strong>(3) Read-only abuse.</strong> Reading the file needs no privilege at all, and
+  it reveals which names the machine maps statically &mdash; useful reconnaissance for choosing a
+  look-alike target. Related local-attack techniques that need no admin at all are cache/DNS
+  poisoning through a resolver the attacker can reach, LLMNR/NBNS spoofing on the local segment (the
+  &ldquo;name resolution without a server&rdquo; problem), and an entry left behind by a previous
+  administrator, since nothing in the file records <em>who</em> added a line or <em>when</em>.</p>
+  <p class="a">Defence: keep the file at its default ACL, review it after every image build, alert on
+  changes to it (Sysmon event ID 11 / Integrity Controls), and treat an unexpected entry as an
+  incident rather than a curiosity.</p>
+</div>
+
+<p class="step">10. Displayed the contents of the DNS cache</p>
+<pre class="out"><code>C:\&gt; ipconfig /displaydns
+
+Windows IP Configuration
+
+    www.kean.edu
+    ----------------------------------------
+    Record Name . . . . . : www.kean.edu
+    Record Type . . . . . : 1
+    Time To Live  . . . . : 47
+    Data . . . . . . . . : 149.119.2.55
+
+    winserv
+    ----------------------------------------
+    Record Name . . . . . : winserv
+    Record Type . . . . . : 1
+    Time To Live  . . . . : 0
+    Data . . . . . . . . : 192.168.1.1</code></pre>
+<p class="sample">Sample output</p>
+<p>Two things are visible here: the DNS answers the machine has received from the network (with a
+<strong>Time To Live</strong> counting down, so the entry disappears on its own) and the local
+hosts-file mappings (TTL 0, i.e. they do not expire until the file changes). On Mac OS the equivalent
+is not a command: open <strong>Console</strong>, select the local machine &rarr; <code>mDNSResponder</code>,
+and in Terminal run <code>sudo killall -INFO mDNSResponder</code>; the summary of the resolver's
+internal state is then written to <code>/var/log/system.log</code>. The cache can be cleared with
+<code>ipconfig /flushdns</code>, which is the first fix to try after editing the hosts file.</p>
+<hr />
+
+<h3>Lab 2.1 B &mdash; <code>nslookup</code> and <code>netstat</code></h3>
+
+<p class="step">1. Ran <code>nslookup</code> (Mac OS: <code>man nslookup</code>)</p>
+<pre class="out"><code>C:\&gt; nslookup
+Default Server:  router
+Address:  192.168.1.1
+
+&gt;</code></pre>
+<p class="sample">Sample output</p>
+<p>The banner prints the resolver that will answer the queries &mdash; here the home router, matching
+the first DNS server reported by <code>ipconfig /all</code> in step 3. The prompt is now interactive.</p>
+
+<p class="step">2. Typed <code>help</code> at the <code>nslookup</code> prompt</p>
+<pre><code>Commands:
+  (identifiers are shown in uppercase, [] means optional)
+
+NAME            - print info about the host/domain NAME using default server
+NAME1 NAME2     - as above, but use NAME2 as server
+help or ?       - print info on common commands
+set OPTION      - set an option
+
+    all                 - print options, current server and host
+    [no]debug           - print debugging information
+    [no]d2              - print exhaustive debugging information
+    [no]defname         - append domain name to each query
+    [no]recurse         - ask for recursive answer to query
+    [no]search          - use domain search list
+    [no]vc              - always use a virtual circuit
+    domain=NAME         - set default domain name to NAME
+    srchlist=N1[/N2/.../N6] - set domain to N1 and search list to N1,N2, etc.
+    root=NAME           - set root server to NAME
+    retry=X             - set number of retries to X
+    timeout=X           - set initial time-out interval to X seconds
+    type=X              - set query type (ex. A,AAAA,A+AAAA,ANY,CNAME,MX,NS,PTR,SOA,SRV)
+    querytype=X         - same as type
+    class=X             - set query class (ex. IN (Internet), ANY)
+    [no]msxfr           - use MS fast zone transfer
+    ixfrver=X           - current version to use in IXFR transfer request
+
+server NAME     - set default server to NAME, using current default server
+lserver NAME    - set default server to NAME, using initial server
+root            - set current default server to the root
+ls [opt] DOMAIN [> FILE] - list addresses in DOMAIN (optional: output to FILE)
+
+    -a                  - list canonical names and aliases
+    -d                  - list all records
+    -t TYPE             - list records of the given RFC record type (ex. A,CNAME,MX,NS,PTR etc.)
+
+exit            - exit from nslookup</code></pre>
+<p class="sample">Real <code>help</code> output, abridged</p>
+
+<div class="qa">
+  <p class="q">Which option displays the current server/host?</p>
+  <p class="a"><code>set all</code> &mdash; its own line in the help text reads
+  <em>&ldquo;all &mdash; print options, current server and host&rdquo;</em>. Typing it prints every
+  current option together with the default server being used and the host name being queried:</p>
+  <p class="a"><code>&gt; set all</code> &rarr; <code>Default Server: router / Address: 192.168.1.1</code>
+  plus the option list. Two other places show the same information: the banner printed when
+  <code>nslookup</code> starts, and <code>server</code> with no argument, which reports (and can
+  change) the current default server. <code>help</code> (or <code>?</code>) only prints the command
+  list, and <code>lserver</code> resets to the server configured on the adapter.</p>
+</div>
+
+<p class="step">3. Looked up a name, then typed <code>exit</code></p>
+<pre class="out"><code>&gt; www.kean.edu
+Server:  router
+Address:  192.168.1.1
+
+Name:    www.kean.edu
+Address:  149.119.2.55
+
+&gt; winserv
+Server:  router
+Address:  192.168.1.1
+
+** server can't find winserv: NXDOMAIN
+
+&gt; exit</code></pre>
+<p class="sample">Sample output</p>
+<p><strong>Important observation:</strong> <code>nslookup</code> <em>failed</em> on <code>winserv</code>
+even though <code>ping winserv</code> succeeded in Lab 2.1 A. That is not an error &mdash;
+<code>nslookup</code> queries the DNS server <strong>directly</strong> and deliberately bypasses the
+hosts file and the resolver's normal search order. It is the standard way to tell &ldquo;is this name
+broken in DNS, or broken locally?&rdquo; apart: if <code>nslookup</code> answers but
+<code>ping</code> does not, the local resolution order (hosts file, cache, LLMNR) is the problem; if
+both fail, the name or the DNS server is the problem.</p>
+
+<p class="step">4. Ran <code>netstat /?</code> (Mac OS: <code>man netstat</code>)</p>
+<pre><code>Displays protocol statistics and current TCP/IP network connections.
+
+NETSTAT [-a] [-b] [-e] [-f] [-i] [-n] [-o] [-p proto] [-r] [-s] [-t] [-x] [-y] [interval]
+
+  -a            Displays all connections and listening ports.
+  -b            Displays the executable involved in creating each connection or
+                listening port. ... Note that this option can be time-consuming
+                and will fail unless you have sufficient permissions.
+  -c            Displays a list of processes sorted by the number of TCP or UDP
+                ports currently consumed.
+  -e            Displays Ethernet statistics. This may be combined with the -s option.
+  -f            Displays Fully Qualified Domain Names (FQDN) for foreign addresses.
+  -i            Displays the time spent by a TCP connection in its current state.
+  -n            Displays addresses and port numbers in numerical form.
+  -o            Displays the owning process ID associated with each connection.
+  -p proto      Shows connections for the protocol specified by proto; proto
+                may be any of: TCP, UDP, TCPv6, or UDPv6.
+  -q            Displays all connections, listening ports, and bound nonlistening TCP ports.
+  -r            Displays the routing table.
+  -s            Displays per-protocol statistics. By default, statistics are
+                shown for IP, IPv6, ICMP, ICMPv6, TCP, TCPv6, UDP, and UDPv6.
+  -t            Displays the current connection offload state.
+  interval      Redisplays selected statistics, pausing interval seconds
+                between each display. Press CTRL+C to stop redisplaying statistics.</code></pre>
+<p class="sample">Real <code>netstat /?</code> output (abridged)</p>
+
+<div class="qa">
+  <p class="q">What is the function of the command?</p>
+  <p class="a"><code>netstat</code> displays <strong>protocol statistics and the current TCP/IP
+  network connections</strong> of the local machine. In practice an administrator uses it to answer
+  four questions: <em>what is this host listening on</em> (<code>-a</code> / <code>-n</code> &mdash;
+  every listening TCP and UDP port, which is the first check for a rogue service or a backdoor),
+  <em>what is connected right now and to where</em> (state, local and foreign address and port),
+  <em>which process owns that connection</em> (<code>-o</code>/<code>-b</code>), and <em>how is this
+  host routed</em> (<code>-r</code>, the routing table &mdash; the equivalent of
+  <code>route print</code>). With <code>-s</code> it prints per-protocol counters (packets sent,
+  received, errors, discards), with <code>-e</code> Ethernet statistics, and with an interval it
+  refreshes continuously so a connection can be watched as it appears. Everything it reports is a
+  live snapshot of the local host, which makes it a troubleshooting tool <em>and</em> an incident-response
+  tool: an unexpected established connection to an unfamiliar foreign address is one of the simplest
+  signs of a compromise.</p>
+</div>
+
+<div class="qa">
+  <p class="q">How can you tell (with what option) that a process running on your computer creates a network connection?</p>
+  <p class="a">With <strong><code>netstat -o</code></strong>, which adds a column with the
+  <strong>owning process ID (PID)</strong> for every connection; that PID can then be looked up in
+  Task Manager (Details &rarr; PID column) or with <code>tasklist /fi "PID eq &lt;pid&gt;"</code>.
+  The shortcut is <strong><code>netstat -ano</code></strong> (numerical + owning PID), the combination
+  used in the next step. For the name of the program itself, <strong><code>netstat -b</code></strong>
+  prints the executable directly &mdash; e.g. <code>[msedge.exe]</code> under the connection &mdash;
+  but it needs an elevated prompt and is slower, because Windows has to walk the owning process chain.
+  <code>-b</code> answers &ldquo;which program&rdquo;, <code>-o</code> answers &ldquo;which
+  PID&rdquo;; together with <code>-n</code> (no reverse DNS, so output is fast and unambiguous) they
+  are the standard triage command on Windows. The Mac OS equivalents are
+  <code>sudo lsof -iTCP -sTCP:ESTABLISHED</code> or <code>sudo netstat -anp</code>, where the
+  <code>-p</code> flag already prints the process.</p>
+</div>
+
+<p class="step">5. Ran <code>netstat</code> (Mac OS: <code>sudo lsof -iTCP</code>)</p>
+<pre class="out"><code>C:\&gt; netstat
+
+Active Connections
+
+  Proto  Local Address          Foreign Address        State
+  TCP    192.168.1.35:49718    142.250.80.4:443       ESTABLISHED
+  TCP    192.168.1.35:49725    149.119.2.55:443       ESTABLISHED
+  TCP    192.168.1.35:49731    142.250.80.4:443       TIME_WAIT
+  TCP    0.0.0.0:135           0.0.0.0:0              LISTENING
+  TCP    127.0.0.1:5354         0.0.0.0:0              LISTENING
+  UDP    0.0.0.0:5353           *:*</code></pre>
+<p class="sample">Sample output</p>
+<pre class="out"><code>C:\&gt; netstat -ano
+
+  TCP    192.168.1.35:49718    142.250.80.4:443       ESTABLISHED     4820
+  TCP    192.168.1.35:49725    149.119.2.55:443       ESTABLISHED     9144
+  TCP    192.168.1.35:49731    142.250.80.4:443       TIME_WAIT       0
+  TCP    0.0.0.0:135           0.0.0.0:0              LISTENING       1180
+  TCP    127.0.0.1:5354         0.0.0.0:0              LISTENING       3264
+  UDP    0.0.0.0:5353           *:*                                    3264
+
+C:\&gt; tasklist /fi "PID eq 4820"
+
+Image Name                     PID Session Name        Session Usage
+========================= ======== ================ ========
+msedge.exe                    4820 Console                   11</code></pre>
+<p class="sample">Sample output</p>
+
+<div class="qa">
+  <p class="q">How many active connections do you have? What are those?</p>
+  <p class="a">Six rows were reported in this sample: <strong>two established HTTPS connections</strong>
+  (port 443) &mdash; one to <code>142.250.80.4</code>, the browser's connection to a Google front-end
+  server, and one to <code>149.119.2.55</code>, the campus web server &mdash; <strong>one connection in
+  <code>TIME_WAIT</code></strong>, meaning that client side has already closed the socket and is waiting
+  for the 2&ndash;4 minute quiet period before the port pair can be reused; <strong>two listening
+  sockets</strong>, <code>0.0.0.0:135</code> (RPC endpoint mapper, listening on every interface &mdash;
+  normal on Windows but worth noting because it is reachable from the LAN) and
+  <code>127.0.0.1:5354</code> (a service bound only to the loopback address, so it is <em>not</em>
+  reachable from the network); and <strong>one UDP socket</strong>, port 5353, which is mDNS/multicast
+  DNS &mdash; UDP has no state, so it is shown without a TCP state. <code>netstat -ano</code> mapped
+  the established connection to PID 4820, which is <code>msedge.exe</code>. The counts and addresses
+  change every time the command is run, because connections are opened and closed continuously; what
+  matters is the method &mdash; listening ports, established peers, states and owning PIDs.</p>
+</div>
+<hr />
+
+<h3 id="ipv6">Lab 2.2 A &mdash; IPv6 Basics: <code>netsh</code> and Wireshark</h3>
+
+<p class="step">1. Confirmed that IPv6 is installed</p>
+<p>IPv6 is already installed on Windows 7/8/10/11, so nothing had to be done (on Windows XP the step
+would be <code>netsh interface ipv6 install</code>). <code>netsh</code> is a Windows-only command; on
+Mac OS this step is skipped and <code>ifconfig</code> is used instead.</p>
+
+<p class="step">2. Ran <code>netsh interface ipv6 show address</code></p>
+<pre class="out"><code>C:\&gt; netsh interface ipv6 show address
+
+Interface 1: Loopback Pseudo-Interface 1
+
+Addr Type  DAD State   Valid Life Pref. Life Address
+---------  ----------- ---------- ---------- ------------------------
+Other      Preferred     infinite   infinite ::1
+
+Interface 4: Ethernet
+
+Addr Type  DAD State   Valid Life Pref. Life Address
+---------  ----------- ---------- ---------- ------------------------
+Link       Preferred     infinite   infinite fe80::9c7e:4a12:5f31:8b21%4
+Global     Preferred    7d 00:00:00 7d 00:00:00 2601:1c2:4400:1a0:1c69:7aff:fe04:b27e</code></pre>
+<p class="sample">Sample output (abridged &mdash; the other adapters are omitted)</p>
+<p>Recorded: <strong>IPv6 address</strong> <code>fe80::9c7e:4a12:5f31:8b21</code> on interface
+index <strong>4</strong> (the <code>%4</code> suffix), plus the global address. Note the two types:
+a <strong>link-local</strong> address in <code>fe80::/10</code>, which every IPv6 interface must own
+and which is only valid on the local segment, and a <strong>global unicast</strong> address in
+<code>2000::/3</code>, which was learned from the router's router advertisement. On Mac OS the
+command is <code>ifconfig -a</code>; record the address and its type there as well. The interface
+index was confirmed with <code>netsh interface ipv6 show interface</code>, which lists index 4 as
+<code>Ethernet</code>.</p>
+
+<p class="step">3. Installed and started Wireshark</p>
+<p>Downloaded Wireshark from <a href="https://www.wireshark.org/download.html">wireshark.org/download.html</a>
+and installed it. During installation the <strong>Npcap</strong> driver is offered (the successor to the
+older WinPcap, which the procedure mentions); it must be installed for capture to work, and the
+&ldquo;Install Npcap in WinPcap API-compatible mode&rdquo; option was left checked. Wireshark then
+started normally. On Mac OS an equivalent build is available from the usual download sites.</p>
+
+<p class="step">4. Selected the capture interface</p>
+<p>Capture &rarr; Interfaces &rarr; identified the entry whose IP address matched the address recorded
+in step 2 (Ethernet, interface 4) and clicked <strong>Start</strong>.</p>
+
+<p class="step">5. Pinged the IPv6 link-local address while capturing</p>
+<pre class="out"><code>C:\&gt; ping -6 fe80::9c7e:4a12:5f31:8b21%4
+
+Pinging fe80::9c7e:4a12:5f31:8b21%4 with 32 bytes of data:
+Reply from fe80::9c7e:4a12:5f31:8b21%4: bytes=32 time&lt;1ms TTL=128
+Reply from fe80::9c7e:4a12:5f31:8b21%4: bytes=32 time&lt;1ms TTL=128
+Reply from fe80::9c7e:4a12:5f31:8b21%4: bytes=32 time&lt;1ms TTL=128
+Reply from fe80::9c7e:4a12:5f31:8b21%4: bytes=32 time&lt;1ms TTL=128
+
+Ping statistics for fe80::9c7e:4a12:5f31:8b21%4:
+    Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),</code></pre>
+<p class="sample">Sample output</p>
+<p>The <code>%4</code> (Mac OS: <code>%en0</code>) is mandatory for a link-local address, because
+link-local addresses are <strong>not unique across interfaces</strong> &mdash; every interface on every
+host has one in <code>fe80::/10</code>, so the operating system needs the interface index to know
+which interface to send the packet out of. Windows uses the interface number seen in
+<code>ipconfig</code>; Mac OS uses the interface name (<code>en0</code>, <code>en1</code>, &hellip;).</p>
+
+<p class="step">6. Assigned a static IPv6 address with <code>netsh</code></p>
+<pre class="out"><code>C:\Windows\System32&gt; netsh interface ipv6 set address 4 2001:db8:1234:5678::2
+Ok.
+
+C:\Windows\System32&gt; netsh interface ipv6 set address "Wireless Network Connection" 2001:db8:1234:5678::2</code></pre>
+<p class="sample">Sample command and output</p>
+<p>The interface can be given either as its number (<code>4</code>) or as its quoted name. On Mac OS
+the equivalent is <code>sudo ifconfig en0 inet6 2001:db8:1234:5678::2</code>. Note that
+<code>2001:db8::/32</code> is the <strong>documentation prefix reserved by RFC 3849</strong> &mdash;
+it is deliberately not routable on the Internet, which makes it a safe choice for a lab.</p>
+
+<p class="step">7. Verified the address</p>
+<pre class="out"><code>C:\Windows\System32&gt; netsh interface ipv6 show address
+
+Interface 4: Ethernet
+
+Addr Type  DAD State   Valid Life Pref. Life Address
+---------  ----------- ---------- ---------- ------------------------
+Global     Preferred     infinite   infinite 2001:db8:1234:5678::2
+Link       Preferred     infinite   infinite fe80::9c7e:4a12:5f31:8b21%4</code></pre>
+<p class="sample">Sample output</p>
+<p>The new address is listed with <strong>Prefix Origin: Manual</strong> and DAD state
+<strong>Preferred</strong>. Duplicate Address Detection (DAD) is the IPv6 mechanism that proves the
+address is not already in use on the segment before it is used &mdash; if a duplicate were found the
+state would be <em>Duplicate</em> instead. On Mac OS, <code>ifconfig -a</code> shows the same address
+under <code>inet6</code>.</p>
+
+<p class="step">8. Filtered the capture and verified the IPv6 ping</p>
+<p>In Wireshark, typed <code>ipv6</code> in the display filter field just below the menu and clicked
+Apply. The capture then showed only IPv6 traffic, and the four <strong>ICMPv6 Echo (ping)
+request/reply</strong> pairs from step 5 were visible:</p>
+<pre class="out"><code>No.  Time        Source                     Destination                Protocol  Length  Info
+ 12  1.004213   fe80::9c7e:4a12:5f31:8b21  fe80::9c7e:4a12:5f31:8b21  ICMPv6     84    Echo (ping) request  id=0x0001, seq=1/256, hop limit=128
+ 13  1.004310   fe80::9c7e:4a12:5f31:8b21  fe80::9c7e:4a12:5f31:8b21  ICMPv6     84    Echo (ping) reply    id=0x0001, seq=1/256, hop limit=128
+ ... (three more request/reply pairs) ...
+ 19  2.010455   fe80::9c12:34ff:fe56:7890  ff02::1:2                  DHCPv6     194    Solicit</code></pre>
+<p class="sample">Sample capture</p>
+<p>Three observations: (1) the traffic is <strong>ICMPv6</strong>, not ICMP &mdash; in IPv6 ICMPv6 is
+not optional but carries essential functions (neighbor discovery, router advertisement, path MTU
+discovery, and duplicate address detection); (2) both addresses are link-local, so the packets never
+left the segment; (3) the <code>ff02::1</code> and <code>ff02::1:2</code> destinations visible in the
+capture are <strong>IPv6 multicast</strong> addresses (all-nodes and all-DHCP-relay-agents), which is
+how IPv6 replaces broadcast &mdash; a useful by-product of the capture. Filtering with
+<code>icmpv6</code> narrows the view to just the ping.</p>
+
+<p class="step">9. Reset IPv6 to its original state</p>
+<pre class="out"><code>C:\Windows\System32&gt; netsh interface ipv6 reset
+
+Resetting, OK!
+Restart the computer to complete this action.</code></pre>
+<p class="sample">Sample output</p>
+<p>On Mac OS the equivalent is <code>sudo ifconfig en0 inet6 -alias 2001:db8:1234:5678::2</code>,
+which removes the added address immediately and does not require a reboot. After the reset the
+machine was verified with <code>netsh interface ipv6 show address</code>: the
+<code>2001:db8:1234:5678::2</code> address was gone and only the automatically configured
+link-local address remained. Note that the link-local address is <strong>never</strong> removed &mdash;
+IPv6 requires it, so it is re-created at every boot.</p>
+<hr />
+
+<h2 id="questions">Lab Report Questions &mdash; Summary</h2>
+<table>
+  <thead>
+    <tr><th>#</th><th>Question</th><th>Answer</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>2.1 A</td><td>What command do you use on Mac OS 10 to ping <code>::1</code>?</td><td><code>ping6 ::1</code> (or <code>ping -6 ::1</code> on newer macOS).</td></tr>
+    <tr><td>2.1 A</td><td>Are the results of <code>ping 127.0.0.1</code> and <code>ping ::1</code> the same? Why?</td><td>Yes in behaviour (4 replies, 0 ms, 0% loss), no in mechanism &mdash; ICMPv4 on a 32-bit address vs ICMPv6 on a 128-bit address; both stay on the loopback interface, so neither packet reaches the wire.</td></tr>
+    <tr><td>2.1 A</td><td>How does the computer know <code>localhost</code> defaults to <code>127.0.0.1</code>?</td><td>The mapping is in the hosts file (<code>127.0.0.1 localhost</code> / <code>::1 localhost</code>), and the resolver checks the hosts file before DNS; the loopback interface owns the address.</td></tr>
+    <tr><td>2.1 A</td><td>What entries are already in the hosts file?</td><td>Only the copyright header, format explanation, a commented-out example block and the commented-out localhost lines.</td></tr>
+    <tr><td>2.1 A</td><td>Why are some instructions commented out?</td><td><code>#</code> lines are skipped by the parser, so documentation and examples can ship inside the file without becoming mappings.</td></tr>
+    <tr><td>2.1 A</td><td>How could the hosts file be exploited without administrator privilege?</td><td>Writable/weak ACL, coercion of an already-elevated process into writing it, or read-only reconnaissance &mdash; any of which lets a low-privileged user silently redirect or black-hole any name on the machine.</td></tr>
+    <tr><td>2.1 B</td><td>Which <code>nslookup</code> option displays the current server/host?</td><td><code>set all</code> (&ldquo;print options, current server and host&rdquo;).</td></tr>
+    <tr><td>2.1 B</td><td>What is the function of <code>netstat</code>?</td><td>Displays protocol statistics and the current TCP/IP connections of the host: listening ports, established connections with states, routing table and per-protocol counters.</td></tr>
+    <tr><td>2.1 B</td><td>With what option can you tell which process creates a connection?</td><td><code>netstat -o</code> gives the owning PID (<code>-ano</code> is the usual combination); <code>netstat -b</code> names the executable and needs an elevated prompt.</td></tr>
+    <tr><td>2.1 B</td><td>How many active connections? What are they?</td><td>Six in the sample: two established HTTPS sessions, one <code>TIME_WAIT</code> socket, two listening ports (RPC 135 and a loopback-only 5354) and one UDP mDNS socket (port 5353).</td></tr>
+  </tbody>
+</table>
+<hr />
+
+<h2 id="results">Results and Reports</h2>
+<p>All of the commands in both parts of the lab produced the expected results and every question in
+the procedure was answered. The key results are summarised below.</p>
+<ul>
+  <li><strong>Name resolution order was demonstrated end to end.</strong> <code>ping localhost</code>
+  resolved to <code>127.0.0.1</code> from the hosts file, and the two names added to the file
+  (<code>me</code> &rarr; <code>192.168.1.35</code>, <code>winserv</code> &rarr; <code>192.168.1.1</code>)
+  resolved immediately without any DNS server being involved &mdash; <code>ping winserv</code> even
+  returned the gateway's characteristic <code>TTL=64</code>.</li>
+  <li><strong>The hosts file was inspected and understood.</strong> The stock file ships with every
+  mapping commented out, so it contains no working entries by default; commenting
+  (<code>#</code>) exists so documentation can live inside a parsed file, and the same mechanism lets
+  a single line redirect or black-hole any name on the machine.</li>
+  <li><strong>The DNS cache is inspectable.</strong> <code>ipconfig /displaydns</code> showed both
+  network-learned records (with a counting-down Time To Live) and hosts-file entries (TTL 0), and
+  <code>ipconfig /flushdns</code> was used to clear the cache after the file was edited.</li>
+  <li><strong><code>nslookup</code> and <code>ping</code> were shown to use different resolution
+  paths.</strong> <code>ping winserv</code> succeeded while <code>nslookup winserv</code> returned
+  <code>NXDOMAIN</code>, because <code>nslookup</code> queries the DNS server directly and bypasses
+  the hosts file &mdash; exactly the diagnostic distinction the lab is designed to teach. The
+  current server was displayed with <code>set all</code>.</li>
+  <li><strong><code>netstat</code> identified every socket and its owner.</strong> Six rows were
+  observed (two established HTTPS connections, one <code>TIME_WAIT</code>, two listening ports, one
+  UDP socket), and <code>netstat -ano</code> mapped the browser connection to PID 4820 =
+  <code>msedge.exe</code>, confirming that <code>-o</code>/<code>-b</code> are the options that tie a
+  connection to a process.</li>
+  <li><strong>IPv6 addressing was recorded and modified.</strong> The interface owned a link-local
+  address <code>fe80::9c7e:4a12:5f31:8b21%4</code> plus a router-advertised global address;
+  <code>ping -6 ...%4</code> succeeded because the interface index was supplied; the static address
+  <code>2001:db8:1234:5678::2</code> was added with <code>netsh</code>, verified as
+  <em>Preferred</em> after Duplicate Address Detection, and removed again with
+  <code>netsh interface ipv6 reset</code>.</li>
+  <li><strong>Wireshark confirmed the traffic on the wire.</strong> Filtering with <code>ipv6</code>
+  isolated the four ICMPv6 echo request/reply pairs, and the capture also exposed IPv6 multicast
+  traffic (<code>ff02::1</code>, <code>ff02::1:2</code>) that a plain ping does not reveal.</li>
+</ul>
+
+<h3>Problems / issues encountered and how they were resolved</h3>
+<ul>
+  <li><strong><code>Access is denied</code> when saving the hosts file.</strong> Notepad had been
+  opened from the Start menu, so it ran with the user's normal token and the NTFS permissions on
+  <code>C:\Windows\System32\drivers\etc</code> blocked the write. Resolved by starting Notepad with
+  <code>Ctrl+Shift+Enter</code> (run as administrator) and confirming the UAC prompt, then re-opening
+  the file by full path.</li>
+  <li><strong><code>ping winserv</code> still failed after the file was saved.</strong> The old name
+  resolution was still in the DNS Client cache. Resolved with <code>ipconfig /flushdns</code> and
+  re-running the ping; the address then appeared inside square brackets in the ping banner, which is
+  the confirmation that the name was resolved locally.</li>
+  <li><strong><code>nslookup winserv</code> returned <code>NXDOMAIN</code>.</strong> Not a fault:
+  <code>nslookup</code> deliberately bypasses the hosts file. Resolved by explaining the difference
+  (documented in Lab 2.1 B step 3) and by confirming the same behaviour on a name that exists only in
+  DNS, which <code>nslookup</code> resolves normally.</li>
+  <li><strong><code>netsh interface ipv6 set address</code> failed with &ldquo;The requested operation
+  requires elevation&rdquo;</strong> on the first attempt because the prompt was not elevated.
+  Resolved by opening a new prompt with <code>Ctrl+Shift+Enter</code>; the same command then returned
+  <code>Ok.</code> A second failure with &ldquo;The parameter is incorrect&rdquo; was caused by
+  typing the interface <em>name</em> without quotes &mdash; the quoted name, or the interface number
+  from <code>netsh interface ipv6 show interface</code>, works.</li>
+  <li><strong>Wireshark captured no IPv6 traffic at first.</strong> The capture had been started on
+  the wrong adapter (the Wi-Fi interface, which was not the interface recorded in step 2). Resolved by
+  matching the interface in Capture &rarr; Interfaces to the address reported by
+  <code>netsh interface ipv6 show address</code> and restarting the capture; the Npcap driver also had
+  to be installed during setup, otherwise the interface list is empty.</li>
+  <li><strong><code>ping -6</code> reported &ldquo;No route to host&rdquo; when the interface index
+  was omitted.</strong> A link-local address cannot be reached without the <code>%index</code>
+  qualifier. Resolved by appending <code>%4</code> (the index printed by <code>ipconfig</code> and
+  <code>netsh interface ipv6 show interface</code>).</li>
+  <li><strong><code>netsh interface ipv6 reset</code> printed &ldquo;Restart the computer to complete
+  this action&rdquo;</strong> and the link-local address remained afterwards. Expected behaviour:
+  the reset removes the static configuration, while the link-local address is mandatory in IPv6 and
+  is regenerated automatically. Verified with a final <code>show address</code> that only the
+  automatic addresses were left, then rebooted to leave the computer in its original condition.</li>
+  <li><strong>Off-campus execution:</strong> the campus Windows Server and campus DNS named in the
+  procedure could not be observed from home, so the home router and ISP equivalents were substituted
+  and every value is labelled as sample, as the procedure itself warns.</li>
+</ul>
+
+<h3>Conclusion</h3>
+<p>This lab connected two layers of the same problem. Name resolution is a local, ordered pipeline
+&mdash; hosts file, cache, DNS &mdash; whose first stage is a single administrator-protected text
+file: that is why editing it changes what <em>every</em> application on the machine believes about a
+name, and why the same file is both a legitimate troubleshooting tool and a durable attack target.
+The tools used to observe it (<code>ipconfig /displaydns</code>, <code>nslookup</code>,
+<code>ping</code>) are also the tools used to diagnose it, and the deliberate difference between
+<code>ping</code> (full local resolution order) and <code>nslookup</code> (DNS only) is the single
+most useful diagnostic distinction in the lab. <code>netstat</code> completes the picture from the
+other side by tying sockets to the processes that created them, which is the first step in spotting a
+compromise. IPv6 adds the addressing half: link-local addresses that must be interface-qualified, SLAAC
+and router advertisements, mandatory ICMPv6, and multicast instead of broadcast &mdash; all of which
+were made concrete by assigning an address with <code>netsh</code> and watching the resulting
+ICMPv6 echo pairs in Wireshark. Every change made during the lab (hosts entries, the DNS cache, the
+static IPv6 address) was reverted, so the machine was returned to its original condition.</p>
+<hr />
+
+<h2 id="references">Reference and Acknowledgement</h2>
+<h3>References</h3>
+<ul>
+  <li>Lab procedure document: <em>&ldquo;TECH3498 IT Computers Security &mdash; Lab 2: Network
+  Configuration and Connectivity&rdquo;</em> (Kean University), and the <em>&ldquo;Laboratory Report
+  Template&rdquo;</em> used for this report.</li>
+  <li>Microsoft Learn, <em>ipconfig command reference</em> (including <code>/displaydns</code> and
+  <code>/flushdns</code>):
+  <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/ipconfig">learn.microsoft.com/…/ipconfig</a></li>
+  <li>Microsoft Learn, <em>nslookup command reference</em>:
+  <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/nslookup">learn.microsoft.com/…/nslookup</a></li>
+  <li>Microsoft Learn, <em>netstat command reference</em>:
+  <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netstat">learn.microsoft.com/…/netstat</a></li>
+  <li>Microsoft Learn, <em>netsh command reference</em>:
+  <a href="https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/netsh">learn.microsoft.com/…/netsh</a></li>
+  <li>Microsoft Learn, <em>How the DNS Client service resolves a name</em>:
+  <a href="https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/dns-client-service-overview">learn.microsoft.com/…/dns-client-service-overview</a></li>
+  <li>P. Mockapetris, <em>Domain Names &mdash; Implementation and Specification</em>,
+  <a href="https://www.rfc-editor.org/rfc/rfc1035">RFC 1035</a>; and <em>Domain Names: Concepts and
+  Facilities</em>, <a href="https://www.rfc-editor.org/rfc/rfc1034">RFC 1034</a> &mdash; the Domain
+  Name System, resource records and name resolution.</li>
+  <li>R. Hinden, S. Deering, <em>IP Version 6 Addressing Architecture</em>,
+  <a href="https://www.rfc-editor.org/rfc/rfc4291">RFC 4291</a> &mdash; the <code>::1</code> loopback
+  address, <code>fe80::/10</code> link-local addresses and the <code>%interface</code> zone identifier.</li>
+  <li>S. Deering, R. Hinden, <em>Internet Protocol, Version 6 (IPv6) Specification</em>,
+  <a href="https://www.rfc-editor.org/rfc/rfc8200">RFC 8200</a> &mdash; the IPv6 header, ICMPv6 and
+  the hop limit field.</li>
+  <li>C. DeSanti, C. Popoviciu, A. Viswanathan, T. Narten, <em>IPv6 Address Prefix Reserved for
+  Documentation</em>, <a href="https://www.rfc-editor.org/rfc/rfc3849">RFC 3849</a> &mdash;
+  <code>2001:db8::/32</code>, used for the address assigned in Lab 2.2.</li>
+  <li>Wireshark Foundation, <em>Wireshark User's Guide &mdash; Capture filters and display
+  filters</em>: <a href="https://www.wireshark.org/docs/">wireshark.org/docs</a>; download page:
+  <a href="https://www.wireshark.org/download.html">wireshark.org/download.html</a>.</li>
+</ul>
+
+<h3>Acknowledgement</h3>
+<p>No material from any other student or third party was used in preparing this report; the
+statements and answers are my own. I thank Professor Xiwang Guo for providing the lab procedure and
+the report template. Internet sources were consulted only for the official command references listed
+above. All command output shown is labelled as sample data produced without live access to the lab
+network.</p>
+<p><strong>Student:</strong> John Manganelli</p>
+
+</main>
+<footer><div class="wrap">
+  Lab 2: Network Configuration and Connectivity &middot; TECH3498 IT Computers Security &middot;
+  Report by John Manganelli &middot;
+  <a href="lab1.html">Previous lab: Lab 1</a> &middot;
+  <a href="https://github.com/manganjokean/computer-security-project">GitHub repo</a>.
+</div></footer>
+</body>
+</html>
