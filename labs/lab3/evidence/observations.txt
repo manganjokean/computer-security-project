@@ -1,0 +1,60 @@
+Lab 3 observed evidence
+Date: November 19, 2026, America/New_York
+Method: Windows Wi-Fi capture using dumpcap, inspected using TShark 4.4.5
+Duration limit: 40 seconds
+Packets captured: 165
+Reported capture drops: 0
+Original capture SHA256: bb8c8e95a967702cfe4d84d0e5c52c9dcb6760f40406b32aef1a56db74edd974
+
+The original capture is retained locally and is not published because it contains
+local device addresses and unrelated background DNS traffic. The CSV contains
+selected original frame numbers and protocol fields, without endpoint addresses,
+payloads, account details, or unrelated DNS names. Checksums are recorded values;
+their default validation status was unverified.
+
+ping -n 4 -w 1000 <default-gateway>
+  Replies: 4, all 32-byte replies with TTL 64.
+  Sent: 4, Received: 4, Lost: 0 (0% loss).
+  Command summary: Minimum 4 ms, Maximum 5 ms, Average 4 ms.
+  ICMP request/reply frames: 52/53, 58/59, 64/65, 78/79.
+
+ARP
+  Frame 18: gateway broadcast request for client; opcode 1.
+  Frame 19: client unicast reply to gateway; opcode 2.
+  Ethernet broadcast: ff:ff:ff:ff:ff:ff; EtherType: 0x0806.
+  ARP hardware type 1, protocol type 0x0800, lengths 6 and 4.
+  Request target hardware field: ff:ff:ff:ff:ff:ff.
+  Cache reset was not performed.
+
+nslookup kean.edu
+  Non-authoritative A answer: 131.125.16.38.
+  Frames 86/87: A query/reply, UDP 59372 -> 53 / 53 -> 59372.
+  Recorded checksums: query 0xe04d, reply 0x0aeb.
+  Frames 88/89: AAAA query/reply, UDP 59373 -> 53 / 53 -> 59373.
+  Recorded checksums: query 0xe030, reply 0x5fb0.
+
+nslookup obi2.kean.edu
+  Alias: obi2.kean.edu; canonical name: obi.kean.edu.
+  A answer: 131.125.16.42 (lookup performed before the saved capture).
+
+TCP connection attempts to obi2
+  Telnet: 60474 -> 23, SYN frame 90; checksum 0x795f.
+  SSH: 60477 -> 22, SYN frame 105; checksum 0xf606.
+  Both attempts timed out after 2500 ms; no authentication attempted.
+
+curl --head --connect-timeout 3 --max-time 5 https://obi2.kean.edu
+  HTTP/1.1 403 Forbidden
+  Server: Apache
+  Connection: close
+  Content-Type: text/html; charset=iso-8859-1
+  HTTPS SYN frame 117: 60479 -> 443, checksum 0x44f2.
+  SYN-ACK frame 118: 443 -> 60479, checksum 0xe75d.
+  ACK frame 119 completes handshake; later packets include TLS 1.2.
+  HTTP response was read at the endpoint, not decrypted from the capture.
+
+netstat -ano
+  Snapshot TCP rows: 128; UDP rows: 68.
+  Endpoint addresses, PIDs, and unrelated connection records are not published.
+
+Unperformed: campus account login, cat /etc/passwd on obi2, permission changes,
+SFTP upload, personal web page validation, mail tests, Gmail account review.

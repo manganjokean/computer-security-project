@@ -8,6 +8,8 @@ Computer Security Project — data-driven security analysis of IoT botnet traffi
 
 ## Projects in this repository
 
+Lab work: [Lab 3 Network Transport and Applications](labs/lab3/) includes written answers, actual local packet observations, and an explicit list of campus/account steps still pending.
+
 | Project | Folder | Question |
 |---|---|---|
 | **IoT botnet detection** (this README) | repo root | Can behavioral network-traffic features distinguish botnet-infected IoT devices from benign traffic? |
